@@ -1,16 +1,16 @@
 ## 2.1 Understanding word embeddings
 
-The concept of converting data into a vector format is often referred to as embedding. Using a specific neural network layer or another pretrained neural network model, we can embed different data types, for example, video, audio, and text, as illustrated in Figure 2.2.
+将数据转换为向量格式的概念通常被称为 embedding。通过使用特定的神经网络层或其他预训练的神经网络模型，我们可以对不同的数据类型进行 embedding，例如视频、音频和文本，如 Figure 2.2 所示。
 
 <div align="center">
 <img src="https://sebastianraschka.com/images/LLMs-from-scratch-images/ch02_compressed/02.webp" width="700px">
 </div>
 
-Figure 2.2: Deep learning models cannot process data formats like video, audio, and text in their raw form. Thus, we use an embedding model to transform this raw data into a dense vector representation that deep learning architectures can easily understand and process. Specifically, this figure illustrates the process of converting raw data into a three-dimensional numerical vector.
+Figure 2.2: 深度学习模型无法直接处理视频、音频和文本等原始数据格式。因此，我们使用 embedding model 将原始数据转换为密集的向量表示，使深度学习架构能够轻松理解和处理。具体来说，该图展示了将原始数据转换为三维数值向量的过程。
 
 ---
 
-Word2Vec trained neural network architecture to generate word embeddings by predicting the context of a word given the target word or vice versa. The main idea behind Word2Vec is that words that appear in similar contexts tend to have similar meanings. Consequently, when projected into 2-dimensional word embeddings for visualization purposes, it can be seen that similar terms cluster together, as shown in Figure 2.3.
+Word2Vec 通过预测目标词的上下文（或反过来）来训练神经网络架构以生成 word embeddings。Word2Vec 背后的核心思想是：出现在相似上下文中的词往往具有相似的含义。因此，当将其投影到二维 word embeddings 进行可视化时，可以看到相似的词汇聚集在一起，如 Figure 2.3 所示。
 
 <div align="center">
 <img src="https://sebastianraschka.com/images/LLMs-from-scratch-images/ch02_compressed/03.webp" width="700px">
@@ -20,7 +20,7 @@ Word2Vec trained neural network architecture to generate word embeddings by pred
 
 ## 2.2 Tokenizing text
 
-This section covers how we split input text into individual tokens, a required preprocessing step for creating embeddings for an LLM. These tokens are either individual words or special characters, including punctuation characters, as shown in Figure 2.4.
+本节介绍如何将输入文本拆分为单独的 token，这是为 LLM 创建 embeddings 所必需的预处理步骤。这些 token 可以是单独的词或特殊字符，包括标点符号，如 Figure 2.4 所示。
 
 <div align="center">
 <img src="https://sebastianraschka.com/images/LLMs-from-scratch-images/ch02_compressed/04.webp" width="700px">
@@ -28,7 +28,7 @@ This section covers how we split input text into individual tokens, a required p
 
 ---
 
-As shown in Figure 2.5, The tokenization scheme we implemented so far splits text into individual words and punctuation characters. In the specific example shown in this figure, the sample text gets split into 10 individual tokens.
+如 Figure 2.5 所示，我们目前实现的 tokenization 方案将文本拆分为单独的词和标点字符。在该图所示的具体示例中，示例文本被拆分为 10 个单独的 token。
 
 <div align="center">
 <img src="https://sebastianraschka.com/images/LLMs-from-scratch-images/ch02_compressed/05.webp" width="700px">
@@ -38,7 +38,7 @@ As shown in Figure 2.5, The tokenization scheme we implemented so far splits tex
 
 ## 2.3 Converting tokens into token IDs
 
-To map the previously generated tokens into token IDs, we have to build a so-called vocabulary first. This vocabulary defines how we map each unique word and special character to a unique integer, as shown in Figure 2.6.
+要将之前生成的 token 映射为 token ID，我们首先需要构建一个所谓的 vocabulary。这个 vocabulary 定义了如何将每个唯一的词和特殊字符映射到一个唯一的整数，如 Figure 2.6 所示。
 
 <div align="center">
 <img src="https://sebastianraschka.com/images/LLMs-from-scratch-images/ch02_compressed/06.webp" width="800px">
@@ -46,9 +46,9 @@ To map the previously generated tokens into token IDs, we have to build a so-cal
 
 ---
 
-Let's implement a complete tokenizer class in Python with an encode method that splits text into tokens and carries out the string-to-integer mapping to produce token IDs via the vocabulary. In addition, we implement a decode method that carries out the reverse integer-to-string mapping to convert the token IDs back into text.
+让我们用 Python 实现一个完整的 tokenizer 类，其中包含一个 encode 方法，用于将文本拆分为 token，并通过 vocabulary 执行字符串到整数的映射以生成 token ID。此外，我们还实现一个 decode 方法，执行反向的整数到字符串映射，将 token ID 转换回文本。
 
-Using the SimpleTokenizerV1 Python class, we can now instantiate new tokenizer objects via an existing vocabulary, which we can then use to encode and decode text, as illustrated in Figure 2.8.
+使用 SimpleTokenizerV1 Python 类，我们现在可以通过现有的 vocabulary 实例化新的 tokenizer 对象，然后用它来编码和解码文本，如 Figure 2.8 所示。
 
 <div align="center">
 <img src="https://sebastianraschka.com/images/LLMs-from-scratch-images/ch02_compressed/08.webp?123" width="800px">
@@ -58,17 +58,17 @@ Using the SimpleTokenizerV1 Python class, we can now instantiate new tokenizer o
 
 ## 2.4 Adding special context tokens
 
-In particular, we will modify the vocabulary and tokenizer we implemented in the previous section, SimpleTokenizerV2, to support two new tokens, `<|unk|>` and `<|endoftext|>`, as illustrated in Figure 2.9.
+具体来说，我们将修改上一节中实现的 vocabulary 和 tokenizer（即 SimpleTokenizerV2），使其支持两个新的 token：`<|unk|>` 和 `<|endoftext|>`，如 Figure 2.9 所示。
 
 <div align="center">
 <img src="https://sebastianraschka.com/images/LLMs-from-scratch-images/ch02_compressed/09.webp?123" width="800px">
 </div>
 
-As shown in Figure 2.9, we can modify the tokenizer to use an `<|unk|>` token if it encounters a word that is not part of the vocabulary. 
+如 Figure 2.9 所示，我们可以修改 tokenizer，使其在遇到不在 vocabulary 中的词时使用 `<|unk|>` token。
 
 ---
 
-Furthermore, we add a token between unrelated texts. For example, when training GPT-like LLMs on multiple independent documents or books, it is common to insert a token before each document or book that follows a previous text source, as illustrated in Figure 2.10. This helps the LLM understand that, although these text sources are concatenated for training, they are, in fact, unrelated.
+此外，我们在不相关的文本之间添加一个 token。例如，当在多个独立的文档或书籍上训练类 GPT 的 LLM 时，通常会在前一个文本源之后的每个文档或书籍之前插入一个 token，如 Figure 2.10 所示。这有助于 LLM 理解，虽然这些文本源被拼接在一起用于训练，但它们实际上是不相关的。
 
 <div align="center">
 <img src="https://sebastianraschka.com/images/LLMs-from-scratch-images/ch02_compressed/10.webp" width="800px">
@@ -78,9 +78,9 @@ Furthermore, we add a token between unrelated texts. For example, when training 
 
 ## 2.5 Byte-pair encoding (BPE)
 
-This section covers a more sophisticated tokenization scheme based on a concept called byte pair encoding (BPE). The BPE tokenizer covered in this section was used to train LLMs such as GPT-2, GPT-3, and the original model used in ChatGPT.
+本节介绍一种基于 byte pair encoding (BPE) 概念的更复杂的 tokenization 方案。本节涵盖的 BPE tokenizer 被用于训练 GPT-2、GPT-3 以及 ChatGPT 最初使用的模型。
 
-Since implementing BPE can be relatively complicated, we will use an existing Python open-source library called [tiktoken](https://github.com/openai/tiktoken), which implements the BPE algorithm very efficiently based on source code in Rust. Similar
+由于实现 BPE 可能相当复杂，我们将使用一个名为 [tiktoken](https://github.com/openai/tiktoken) 的现有 Python 开源库，它基于 Rust 源代码非常高效地实现了 BPE 算法。
 
 ```python
 from importlib.metadata import version
@@ -88,7 +88,7 @@ import tiktoken
 print("tiktoken version:", version("tiktoken"))
 ```
 
-Once installed, we can instantiate the BPE tokenizer from tiktoken as follows:
+安装完成后，我们可以按如下方式从 tiktoken 实例化 BPE tokenizer：
 
 ```python
 tokenizer = tiktoken.get_encoding("gpt2")
@@ -100,22 +100,22 @@ tokenizer.decode(integers)
 ```
 
 
-As illustrated in Figure 2.11, the ability to break down unknown words into individual characters ensures that the tokenizer, and consequently the LLM that is trained with it, can process any text, even if it contains words that were not present in its training data.
+如 Figure 2.11 所示，将未知词拆分为单个字符的能力确保了 tokenizer 以及使用它训练的 LLM 可以处理任何文本，即使其中包含训练数据中未出现过的词。
 
 <div align="center">
 <img src="https://sebastianraschka.com/images/LLMs-from-scratch-images/ch02_compressed/11.webp" width="700px">
 </div>
 
 
-A detailed discussion and implementation of BPE is out of the scope of this book, but in short, it builds its vocabulary by iteratively merging frequent characters into subwords and frequent subwords into words. The merges are determined by a frequency cutoff.
+对 BPE 的详细讨论和实现超出了本书的范围，但简单来说，它通过迭代地将高频字符合并为子词、将高频子词合并为词来构建 vocabulary。合并操作由频率阈值决定。
 
 
 
 ## 2.6 Data sampling with a sliding window
 
-The next step before we can finally create the embeddings for the LLM is to generate the input-target pairs required for training an LLM.
+在最终为 LLM 创建 embeddings 之前，下一步是生成训练 LLM 所需的 input-target pairs。
 
-What do these input-target pairs look like? As we learned in chapter 1, LLMs are pretrained by predicting the next word in a text, as depicted in figure 2.12.
+这些 input-target pairs 是什么样的？正如我们在第 1 章中学到的，LLM 通过预测文本中的下一个词来进行预训练，如 Figure 2.12 所示。
 
 <div align="center">
 <img src="https://sebastianraschka.com/images/LLMs-from-scratch-images/ch02_compressed/12.webp" width="700px">
@@ -123,7 +123,7 @@ What do these input-target pairs look like? As we learned in chapter 1, LLMs are
 
 ---
 
-In particular, we are interested in returning two tensors: an input tensor containing the text that the LLM sees and a target tensor that includes the targets for the LLM to predict, as depicted in Figure 2.13.
+具体来说，我们需要返回两个 tensor：一个包含 LLM 看到的文本的 input tensor，以及一个包含 LLM 需要预测的目标的 target tensor，如 Figure 2.13 所示。
 
 <div align="center">
 <img src="https://sebastianraschka.com/images/LLMs-from-scratch-images/ch02_compressed/13.webp?123" width="700px">
@@ -131,7 +131,7 @@ In particular, we are interested in returning two tensors: an input tensor conta
 
 ---
 
-As demonstrated in Figure 2.14, When creating multiple batches from the input dataset, we slide an input window across the text. If the stride is set to 1, we shift the input window by 1 position when creating the next batch. If we set the stride equal to the input window size, we can prevent overlaps between the batches.
+如 Figure 2.14 所示，当从输入数据集创建多个 batch 时，我们在文本上滑动一个输入窗口。如果 stride 设置为 1，我们在创建下一个 batch 时将输入窗口移动 1 个位置。如果将 stride 设置为等于输入窗口大小，则可以防止 batch 之间的重叠。
 
 <div align="center">
 <img src="https://sebastianraschka.com/images/LLMs-from-scratch-images/ch02_compressed/14.webp" width="700px">
@@ -141,31 +141,31 @@ As demonstrated in Figure 2.14, When creating multiple batches from the input da
 
 ## 2.7 Creating token embeddings
 
-The last step for preparing the input text for LLM training is to convert the token IDs into embedding vectors, as illustrated in Figure 2.15
+为 LLM 训练准备输入文本的最后一步是将 token ID 转换为 embedding 向量，如 Figure 2.15 所示。
 
 <div align="center">
 <img src="https://sebastianraschka.com/images/LLMs-from-scratch-images/ch02_compressed/15.webp" width="700px">
 </div>
 
-In addition to the processes outlined in Figure 2.15, it is important to note that we initialize these embedding weights with random values as a preliminary step.
+除了 Figure 2.15 中概述的过程外，需要注意的是，我们使用随机值初始化这些 embedding 权重作为初始步骤。
 
 ---
 
-In other words, the embedding layer is essentially a look-up operation that retrieves rows from the embedding layer's weight matrix via a token ID.
+换句话说，embedding layer 本质上是一个查找操作，通过 token ID 从 embedding layer 的权重矩阵中检索对应的行。
 
-Each row in this output matrix is obtained via a lookup operation from the embedding weight matrix, as illustrated in Figure 2.16. 
+该输出矩阵中的每一行都是通过从 embedding 权重矩阵中进行查找操作获得的，如 Figure 2.16 所示。
 
 <div align="center">
 <img src="https://sebastianraschka.com/images/LLMs-from-scratch-images/ch02_compressed/16.webp?123" width="700px">
 </div>
 
-Figure 2.16: Embedding layers perform a look-up operation, retrieving the embedding vector corresponding to the token ID from the embedding layer's weight matrix. For instance, the embedding vector of the token ID 5 is the sixth row of the embedding layer weight matrix (it is the sixth instead of the fifth row because Python starts counting at 0). For illustration purposes, we assume that the token IDs were produced by the small vocabulary we used in section 2.3.
+Figure 2.16: Embedding layer 执行查找操作，从 embedding layer 的权重矩阵中检索与 token ID 对应的 embedding 向量。例如，token ID 5 的 embedding 向量是 embedding layer 权重矩阵的第六行（之所以是第六行而不是第五行，是因为 Python 从 0 开始计数）。为了便于说明，我们假设 token ID 是由我们在 2.3 节中使用的小型 vocabulary 生成的。
 
 
 
 ## 2.8 Encoding word positions
 
-The way the previously introduced embedding layer works is that the same token ID always gets mapped to the same vector representation, regardless of where the token ID is positioned in the input sequence, as illustrated in Figure 2.17.
+前面介绍的 embedding layer 的工作方式是：相同的 token ID 始终映射到相同的向量表示，无论该 token ID 在输入序列中的位置如何，如 Figure 2.17 所示。
 
 <div align="center">
 <img src="https://sebastianraschka.com/images/LLMs-from-scratch-images/ch02_compressed/17.webp" width="700px">
@@ -173,7 +173,7 @@ The way the previously introduced embedding layer works is that the same token I
 
 ---
 
-Absolute positional embeddings are directly associated with specific positions in a sequence. For each position in the input sequence, a unique embedding is added to the token's embedding to convey its exact location. For instance, the first token will have a specific positional embedding, the second token another distinct embedding, and so on, as illustrated in Figure 2.18.
+Absolute positional embeddings 与序列中的特定位置直接关联。对于输入序列中的每个位置，都会在 token 的 embedding 上添加一个唯一的 embedding 来表示其确切位置。例如，第一个 token 将有一个特定的 positional embedding，第二个 token 有另一个不同的 embedding，依此类推，如 Figure 2.18 所示。
 
 <div align="center">
 <img src="https://sebastianraschka.com/images/LLMs-from-scratch-images/ch02_compressed/18.webp" width="700px">
@@ -181,7 +181,7 @@ Absolute positional embeddings are directly associated with specific positions i
 
 ---
 
-We now consider more realistic and useful embedding sizes and encode the input tokens into a 256-dimensional vector representation. This is smaller than what the original GPT-3 model used (in GPT-3, the embedding size is 12,288 dimensions) but still reasonable for experimentation. Furthermore, we assume that the token IDs were created by the BPE tokenizer that we implemented earlier, which has a vocabulary size of 50,257:
+现在我们考虑更实际和有用的 embedding 尺寸，将输入 token 编码为 256 维的向量表示。这比原始 GPT-3 模型使用的维度要小（GPT-3 的 embedding 大小为 12,288 维），但对于实验来说仍然是合理的。此外，我们假设 token ID 是由我们之前实现的 BPE tokenizer 创建的，其 vocabulary size 为 50,257：
 
 ```python
 vocab_size = 50257
@@ -200,7 +200,7 @@ token_embeddings = token_embedding_layer(inputs)  # torch.Size([8, 4, 256])
 ```
 
 
-For a GPT model's absolute embedding approach, we just need to create another embedding layer that has the same dimension as the `token_embedding_layer`:
+对于 GPT 模型的 absolute embedding 方法，我们只需要创建另一个与 `token_embedding_layer` 维度相同的 embedding layer：
 
 ```python
 context_length = 4
@@ -210,11 +210,9 @@ print(pos_embeddings.shape)  # torch.Size([4, 256])
 ```
 
 
-As we can see, the positional embedding tensor consists of four 256-dimensional vectors. We can now add these directly to the token embeddings, where PyTorch will add the 4x256-dimensional `pos_embeddings` tensor to each 4x256-dimensional token embedding tensor in each of the 8 batches:
+如我们所见，positional embedding tensor 由四个 256 维向量组成。我们现在可以将它们直接加到 token embeddings 上，其中 PyTorch 会将 4x256 维的 `pos_embeddings` tensor 加到 8 个 batch 中每个 4x256 维的 token embedding tensor 上：
 
 ```python
 input_embeddings = token_embeddings + pos_embeddings
 input_embeddings.shape  # torch.Size([8, 4, 256])
 ```
-
-
