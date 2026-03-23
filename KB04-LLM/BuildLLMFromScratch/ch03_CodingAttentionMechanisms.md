@@ -1,12 +1,6 @@
-<div align="center">
-<img src="https://sebastianraschka.com/images/LLMs-from-scratch-images/ch03_compressed/02.webp" width="800px">
-</div>
-
-
-
 ## 3.1 The problem with modeling long sequences
 
-As shown in Figure 3.3, we can't simply translate a text word by word due to the grammatical structures in the source and target language.
+如 Figure 3.3 所示，由于源语言和目标语言的语法结构差异，我们无法简单地逐词翻译文本。
 
 <div align="center">
 <img src="https://sebastianraschka.com/images/LLMs-from-scratch-images/ch03_compressed/03.webp" width="800px">
@@ -14,41 +8,41 @@ As shown in Figure 3.3, we can't simply translate a text word by word due to the
 
 ---
 
-In an encoder-decoder RNN, the input text is fed into the encoder, which processes it sequentially. The encoder updates its hidden state (the internal values at the hidden layers) at each step, trying to capture the entire meaning of the input sentence in the final hidden state, as illustrated in Figure 3.4. The decoder then takes this final hidden state to start generating the translated sentence, one word at a time. It also updates its hidden state at each step, which is supposed to carry the context necessary for the next-word prediction.
+在 encoder-decoder RNN 中，输入文本被送入 encoder，encoder 按顺序处理输入。encoder 在每一步更新其 hidden state（隐藏层的内部值），试图将整个输入句子的含义压缩到最终的 hidden state 中，如 Figure 3.4 所示。然后，decoder 接收这个最终的 hidden state 来开始生成翻译后的句子，每次生成一个词。decoder 也会在每一步更新其 hidden state，该 hidden state 应携带下一个词预测所需的上下文信息。
 
 <div align="center">
 <img src="https://sebastianraschka.com/images/LLMs-from-scratch-images/ch03_compressed/04.webp" width="800px">
 </div>
 
-> Figure 3.4: Before the advent of transformer models, encoder-decoder RNNs were a popular choice for machine translation. The encoder takes a sequence of tokens from the source language as input, where a hidden state (an intermediate neural network layer) of the encoder encodes a compressed representation of the entire input sequence. Then, the decoder uses its current hidden state to begin the translation, token by token.
+> Figure 3.4: 在 transformer 模型出现之前，encoder-decoder RNN 是机器翻译的常用选择。encoder 接收来自源语言的 token 序列作为输入，其中 encoder 的 hidden state（一个中间神经网络层）对整个输入序列进行压缩编码。然后，decoder 使用其当前的 hidden state 开始逐 token 翻译。
 
-While we don't need to know the inner worki ngs of these encoder-decoder RNNs, the key idea here is that the encoder part processes the entire input text into a hidden state (memory cell). The decoder then takes in this hidden state to produce the output.
+虽然我们不需要了解这些 encoder-decoder RNN 的内部工作原理，但关键思想是：encoder 部分将整个输入文本处理为一个 hidden state（memory cell）。然后 decoder 接收这个 hidden state 来生成输出。
 
 
 
 ## 3.2 Capturing data dependencies with attention mechanisms
 
-Hence, researchers developed the so-called Bahdanau attention mechanism for RNNs in 2014 (named after the first author of the respective paper), which modifies the encoder-decoder RNN such that the decoder can selectively access different parts of the input sequence at each decoding step as illustrated in Figure 3.5.
+因此，研究人员在 2014 年开发了所谓的 Bahdanau attention mechanism（以相关论文第一作者命名），它对 encoder-decoder RNN 进行了修改，使得 decoder 在每个解码步骤中可以选择性地访问输入序列的不同部分，如 Figure 3.5 所示。
 
 <div align="center">
 <img src="https://sebastianraschka.com/images/LLMs-from-scratch-images/ch03_compressed/05.webp" width="800px">
 </div>
 
-> Figure 3.5 Using an attention mechanism, the text-generating decoder part of the network can access all input tokens selectively. This means that some input tokens are more important than others for generating a given output token. The importance is determined by the so-called attention weights, which we will compute later.
+> Figure 3.5 使用 attention mechanism，网络中负责生成文本的 decoder 部分可以选择性地访问所有输入 token。这意味着某些输入 token 对于生成给定的输出 token 比其他 token 更重要。这种重要性由所谓的 attention weights 决定，我们将在后面进行计算。
 > 
-> Note that this figure shows the general idea behind attention and does not depict the exact implementation of the Bahdanau mechanism, which is an RNN method outside this book's scope.
+> 请注意，此图展示的是 attention 的一般思想，并不是 Bahdanau mechanism 的精确实现，Bahdanau mechanism 是一种 RNN 方法，超出了本书的范围。
 
 ---
 
-Self-attention is a mechanism that allows each position in the input sequence to attend to all positions in the same sequence when computing the representation of a sequence. Self-attention is a key component of contemporary LLMs based on the transformer architecture, such as the GPT series.
+Self-attention 是一种机制，它允许输入序列中的每个位置在计算序列表示时关注同一序列中的所有位置。Self-attention 是当代基于 transformer 架构的 LLM（如 GPT 系列）的关键组件。
 
-This chapter focuses on coding and understanding this self-attention mechanism used in GPT-like models, as illustrated in Figure 3.6.
+本章重点介绍 GPT 类模型中使用的 self-attention mechanism 的编码和理解，如 Figure 3.6 所示。
 
 <div align="center">
 <img src="https://sebastianraschka.com/images/LLMs-from-scratch-images/ch03_compressed/06.webp" width="700px">
 </div>
 
-> Figure 3.6 Self-attention is a mechanism in transformers that is used to compute more efficient input representations by allowing each position in a sequence to interact with and weigh the importance of all other positions within the same sequence.
+> Figure 3.6 Self-attention 是 transformer 中的一种机制，通过允许序列中每个位置与同一序列中所有其他位置进行交互并权衡其重要性，来计算更高效的输入表示。
 
 
 
@@ -56,7 +50,7 @@ This chapter focuses on coding and understanding this self-attention mechanism u
 
 ### 3.3.1 A simple self-attention mechanism without trainable weights
 
-In this section, we implement a simplified variant of self-attention, free from any trainable weights, which is summarized in Figure 3.7
+在本节中，我们实现一个简化版的 self-attention，不包含任何可训练权重，总结如 Figure 3.7 所示。
 
 <div align="center">
 <img src="./assests/fig3.7.png" width="700px">
@@ -64,7 +58,7 @@ In this section, we implement a simplified variant of self-attention, free from 
 
 ---
 
-Consider the following input sentence, which has already been embedded into 3-dimensional vectors as discussed in chapter 2. We choose a small embedding dimension for illustration purposes to ensure it fits on the page without line breaks:
+考虑以下输入句子，它已经被嵌入为 3 维向量（如第 2 章所讨论的）。为了便于说明，我们选择较小的 embedding 维度，以确保内容可以在页面上显示而无需换行：
 
 ```python
 import torch
@@ -81,50 +75,57 @@ inputs = torch.tensor(
 ```
 
 
-**Compute step-by-step:**
+**逐步计算过程：**
 
-1. The first step of implementing self-attention is to compute the intermediate values $\omega$, referred to as attention scores, as illustrated in Figure 3.8.
-    $$\omega_{ij} = x^{(i)} \cdot (x^{(j)})^T, \quad \text{x.shape = (T, d)}$$
+1. 实现 self-attention 的第一步是计算中间值 $\omega$，称为 attention scores，如 Figure 3.8 所示。
+    ```math
+    \omega_{ij} = x^{(i)} \cdot (x^{(j)})^T, \quad \text{x.shape = (T, d)}
+    ```
     
     <div align="center">
     <img src="https://sebastianraschka.com/images/LLMs-from-scratch-images/ch03_compressed/08.webp" width="700px">
     </div>
 
-2. In the next step, as shown in Figure 3.9, we normalize each of the attention scores that we computed previously.
-    $$\alpha_{ij} = \frac{\exp(\omega_{ij})}{\sum_{k=1}^T \exp(\omega_{ik})}$$
+2. 下一步，如 Figure 3.9 所示，我们对之前计算的每个 attention score 进行归一化。
+    ```math
+    \alpha_{ij} = \frac{\exp(\omega_{ij})}{\sum_{k=1}^T \exp(\omega_{ik})}
+    ```
 
     <div align="center">
     <img src="https://sebastianraschka.com/images/LLMs-from-scratch-images/ch03_compressed/09.webp" width="700px">
     </div>
 
-3. Now that we computed the normalized attention weights, we are ready for the final step illustrated in Figure 3.10: calculating the context vector $z^{(2)}$ by multiplying the embedded input tokens, $x^{i}$, with the corresponding attention weights and then summing the resulting vectors.
-    $$z^{(i)} = \sum_{j=1}^T \alpha_{ij} x^{(j)}$$
+3. 现在我们已经计算了归一化的 attention weights，可以进行 Figure 3.10 所示的最后一步：通过将嵌入的输入 token $x^{i}$ 与相应的 attention weights 相乘，然后将结果向量求和，来计算 context vector $z^{(2)}$。
+    ```math
+    z^{(i)} = \sum_{j=1}^T \alpha_{ij} x^{(j)}
+    ```
     
     <div align="center">
     <img src="https://sebastianraschka.com/images/LLMs-from-scratch-images/ch03_compressed/10.webp" width="700px">
     </div>
 
-    例如 $z^{(2)}$ 的计算(矩阵化形式)：
-    $$
+    例如 $z^{(2)}$ 的计算（矩阵化形式）：
+    
+    ```math
     z^{(2)} = W^{(2)}X = 
     \begin{bmatrix}
     \alpha_{21} &  \alpha_{22} &..,  &\alpha_{2T}
-    \end{bmatrix}
+    \end{bmatrix} \
     \begin{bmatrix}
     x^{(1)}\\
     x^{(2)}\\
-    ...,\\
-    x^{(T)}
+    ..,\\
+    x^{(T)}\\
     \end{bmatrix}
-    $$
+    ```
 
-The context vector $z^{(2)}$ depicted in Figure 3.10 is calculated as a weighted sum of all input vectors.
+Figure 3.10 中所示的 context vector $z^{(2)}$ 是所有输入向量的加权和。
 
 
 
 ### 3.3.2 Computing attention weights for all input tokens
 
-In the previous section, we computed attention weights and the context vector for input 2, as shown in the highlighted row in Figure 3.11. Now, we are extending this computation to calculate attention weights and context vectors for all inputs.
+在上一节中，我们计算了输入 2 的 attention weights 和 context vector，如 Figure 3.11 中高亮行所示。现在，我们将这个计算扩展到所有输入的 attention weights 和 context vectors。
 
 <div align="center">
 <img src="https://sebastianraschka.com/images/LLMs-from-scratch-images/ch03_compressed/11.webp" width="700px">
@@ -133,7 +134,7 @@ In the previous section, we computed attention weights and the context vector fo
 ---
 
 
-We follow the same three steps as before, as summarized in Figure 3.12:
+我们遵循与之前相同的三个步骤，总结如 Figure 3.12 所示：
 
 <div align="center">
 <img src="https://sebastianraschka.com/images/LLMs-from-scratch-images/ch03_compressed/12.webp" width="700px">
@@ -141,32 +142,37 @@ We follow the same three steps as before, as summarized in Figure 3.12:
 
 设输入矩阵 $X\in\mathbb{R}^{n\times d}$：
 
-1. First, in step 1 as illustrated in Figure 3.12, we add an additional for-loop to compute the dot products for all pairs of inputs;
-   $$
+1. 首先，在 Figure 3.12 所示的步骤 1 中，我们添加一个额外的 for 循环来计算所有输入对的 dot product；
+   ```math
    S = XX^T
-   $$
+   ```
+
    $S \in \mathbb{R}^{n\times n} \text{ is the attention scores matrix}$
-2. In step 2, as illustrated in Figure 3.12, we now normalize each row so that the values in each row sum to 1;
-   $$
+2. 在 Figure 3.12 所示的步骤 2 中，我们现在对每一行进行归一化，使每行的值之和为 1；
+   ```math
    W = \mathrm{softmax}_{\text{row}}(S),\quad
    W_{ij}=\frac{\exp(S_{ij})}{\sum_{k=1}^{n}\exp(S_{ik})}
-   $$
+   ```
+
    $W \in \mathbb{R}^{n\times n} \text{ is the attention weights matrix}$
-3. In the third and last step, we now use these attention weights to compute all context vectors via matrix multiplication.
-   $$C = WX$$
+3. 在第三步也是最后一步中，我们使用这些 attention weights 通过矩阵乘法计算所有 context vectors。
+   ```math
+   C = WX
+   ```
+
    $C \in \mathbb{R}^{n\times d} \text{ is the context vectors matrix}$
 
 
 
 ## 3.4 Implementing self-attention with trainable weights
 
-These trainable weight matrices are crucial so that the model (specifically, the attention module inside the model) can learn to produce "good" context vectors.
+这些可训练的权重矩阵至关重要，因为它们使模型（具体来说是模型内部的 attention 模块）能够学习产生"好的" context vectors。
 
 
 
 ### 3.4.1 Computing the attention weights step by step
 
-We will implement the self-attention mechanism step by step by introducing the three trainable weight matrices $W_q, W_k$, and $W_v$. These three matrices are used to project the embedded input tokens, $x^{(i)}$, into query, key, and value vectors as illustrated in Figure 3.14.
+我们将通过引入三个可训练的权重矩阵 $W_q, W_k$ 和 $W_v$ 来逐步实现 self-attention mechanism。这三个矩阵用于将嵌入的输入 token $x^{(i)}$ 投影为 query、key 和 value 向量，如 Figure 3.14 所示。
 
 - $W_q$、$W_k$ 和 $W_v$, 分别是Query、Key、Value,专有名词
 - 这三个矩阵用于通过矩阵乘法将嵌入的输入标记 $x^{(i)}$ 映射到查询向量、键向量和值向量：
@@ -178,34 +184,37 @@ We will implement the self-attention mechanism step by step by introducing the t
 <img src="https://sebastianraschka.com/images/LLMs-from-scratch-images/ch03_compressed/14.webp" width="800px">
 </div>
 
-1. Let's begin by defining a few variables; Next, we initialize the three weight matrices $W_q$, $W_k$, and $W_v$ that are shown in Figure 3.14;
-   $$
-   x^{(2)} = \text{inputs[1]}, \quad d_{in} = \text{inputs.shape[1]}, \quad d_{out} = 2
-   $$
-   
-   $$
+1. 首先定义一些变量；接下来，初始化 Figure 3.14 中所示的三个权重矩阵 $W_q$、$W_k$ 和 $W_v$；
+   ```math
+   x^{(2)} = \text{inputs[1]}, \quad d_{in} = \text{inputs.shape[1]}, \quad d_{out} = 2 \\
    q^{(2)} = x^{(2)} W_q, \quad k^{(2)} = x^{(2)} W_k, \quad v^{(2)} = x^{(2)} W_v
-   $$
+   ```
+   
+   ```math
+   Q=X W_q, \quad K=X W_k, \quad V=X W_v
+   ```
 
-   $$Q=X W_q, \quad K=X W_k, \quad V=X W_v$$
-2. The second step is now to compute the attention scores, as shown in Figure 3.15;
-    $$
+2. 第二步是计算 attention scores，如 Figure 3.15 所示；
+    ```math
     \omega_{i} = q^{(i)} \cdot K^T, \quad \omega_{ij} = q^{(i)} \cdot (k^{(j)})^T
-    $$
+    ```
+
     <div align="center">
     <img src="https://sebastianraschka.com/images/LLMs-from-scratch-images/ch03_compressed/15.webp" width="800px">
     </div>
-3. The third step is now going from the attention scores to the attention weights, as illustrated in Figure 3.16;
-    $$
+3. 第三步是将 attention scores 转换为 attention weights，如 Figure 3.16 所示；
+    ```math
     \alpha_{ij} = \frac{\exp(\omega_{ij})}{\sum_{k=1}^{n}\exp(\omega_{ik})}
-    $$
+    ```
+
     <div align="center">
     <img src="https://sebastianraschka.com/images/LLMs-from-scratch-images/ch03_compressed/16.webp" width="800px">
     </div>
-4. Now, the final step is to compute the context vectors, as illustrated in Figure 3.17.
-    $$
+4. 最后一步是计算 context vectors，如 Figure 3.17 所示。
+    ```math
     z^{(i)} = \sum_{j=1}^T \alpha_{ij} v^{(j)}
-    $$
+    ```
+
     <div align="center">
     <img src="https://sebastianraschka.com/images/LLMs-from-scratch-images/ch03_compressed/17.webp" width="800px">
     </div>
@@ -214,42 +223,45 @@ We will implement the self-attention mechanism step by step by introducing the t
 
 ### 3.4.2 Implementing a compact self-attention Python class
 
-Figure 3.18 summarizes the self-attention mechanism we just implemented.
+Figure 3.18 总结了我们刚刚实现的 self-attention mechanism。
 
-1. Compute the queries, keys, and values:
-    $$
+1. 计算 queries、keys 和 values：
+    ```math
     Q=X W_q, \quad K=X W_k, \quad V=X W_v
-    $$
-2. Compute the attention weight matrix:
-    $$
+    ```
+
+2. 计算 attention weight 矩阵：
+    ```math
     W = QK^T
-    $$
-3. Normalize the attention weight matrix:
-    $$
+    ```
+
+3. 归一化 attention weight 矩阵：
+    ```math
     A = \mathrm{softmax}_{row}(W), \quad A_{ij} = \frac{\exp(W_{ij})}{\sum_{k=1}^{n}\exp(W_{ik})}
-    $$
-4. Compute the context vectors:
-    $$
+    ```
+    
+4. 计算 context vectors：
+    ```math
     Z = A V
-    $$
+    ```
 
 <div align="center">
 <img src="https://sebastianraschka.com/images/LLMs-from-scratch-images/ch03_compressed/18.webp" width="700px">
 </div>
 
-> Figure 3.18 In self-attention, we transform the input vectors in the input matrix X with the three weight matrices, $W_q$, $W_k$, and $W_v$. 
+> Figure 3.18 在 self-attention 中，我们使用三个权重矩阵 $W_q$、$W_k$ 和 $W_v$ 对输入矩阵 X 中的输入向量进行变换。
 >
-> Then, we compute the attention weight matrix based on the resulting queries (Q) and keys (K). Using the attention weights and values (V), we then compute the context vectors (Z). 
+> 然后，我们根据得到的 queries (Q) 和 keys (K) 计算 attention weight 矩阵。利用 attention weights 和 values (V)，我们最终计算出 context vectors (Z)。
 
 
 
 ## 3.5 Hiding future words with causal attention
 
-Causal attention, also known as masked attention, is a specialized form of self-attention. It restricts a model to only consider previous and current inputs in a sequence when processing any given token. This is in contrast to the standard self-attention mechanism, which allows access to the entire input sequence at once.
+Causal attention，也称为 masked attention，是 self-attention 的一种特殊形式。它限制模型在处理任何给定 token 时只考虑序列中之前的和当前的输入。这与标准的 self-attention mechanism 不同，标准 self-attention 允许一次访问整个输入序列。
 
-Consequently, when computing attention scores, the causal attention mechanism ensures that the model only factors in tokens that occur at or before the current token in the sequence.
+因此，在计算 attention scores 时，causal attention mechanism 确保模型只考虑序列中当前 token 及其之前位置的 token。
 
-To achieve this in GPT-like LLMs, for each token processed, we mask out the future tokens, which come after the current token in the input text, as illustrated in Figure 3.19.
+为了在 GPT 类 LLM 中实现这一点，对于处理的每个 token，我们屏蔽掉输入文本中当前 token 之后的 future tokens，如 Figure 3.19 所示。
 
 <div align="center">
 <img src="https://sebastianraschka.com/images/LLMs-from-scratch-images/ch03_compressed/19.webp" width="700px">
@@ -259,7 +271,7 @@ To achieve this in GPT-like LLMs, for each token processed, we mask out the futu
 
 ### 3.5.1 Applying a causal attention mask
 
-In this section, we implement the causal attention mask in code. We start with the procedure summarized in Figure 3.20.
+在本节中，我们用代码实现 causal attention mask。我们从 Figure 3.20 中总结的流程开始。
 
 <div align="center">
 <img src="https://sebastianraschka.com/images/LLMs-from-scratch-images/ch03_compressed/20.webp" width="700px">
@@ -267,7 +279,7 @@ In this section, we implement the causal attention mask in code. We start with t
 
 ---
 
-While we could be technically done with implementing causal attention at this point, we can take advantage of a mathematical property of the softmax function and implement the computation of the masked attention weights more efficiently in fewer steps, as shown in Figure 3.21.
+虽然到此我们在技术上已经可以完成 causal attention 的实现，但我们可以利用 softmax 函数的数学特性，以更少的步骤更高效地计算 masked attention weights，如 Figure 3.21 所示。
 
 <div align="center">
 <img src="https://sebastianraschka.com/images/LLMs-from-scratch-images/ch03_compressed/21.webp" width="700px">
@@ -284,7 +296,7 @@ print(attn_weights)
 
 ### 3.5.2 Masking additional attention weights with dropout
 
-Here, we will apply the dropout mask after computing the attention weights, as illustrated in Figure 3.22, because it's the more common variant in practice.
+在这里，我们在计算 attention weights 之后应用 dropout mask，如 Figure 3.22 所示，因为这是实践中更常见的做法。
 
 <div align="center">
 <img src="https://sebastianraschka.com/images/LLMs-from-scratch-images/ch03_compressed/22.webp" width="600px">
@@ -294,13 +306,13 @@ Here, we will apply the dropout mask after computing the attention weights, as i
 
 ## 3.6 Extending single-head attention to multi-head attention
 
-The term "multi-head" refers to dividing the attention mechanism into multiple "heads," each operating independently. In this context, a single causal attention module can be considered single-head attention, where there is only one set of attention weights processing the input sequentially.
+"Multi-head" 指的是将 attention mechanism 分成多个 "head"，每个 head 独立运作。在这个语境下，单个 causal attention 模块可以被视为 single-head attention，其中只有一组 attention weights 按顺序处理输入。
 
 
 
 ### 3.6.1 Stacking multiple single-head attention layers
 
-Figure 3.24 illustrates the structure of a multi-head attention module, which consists of multiple single-head attention modules, as previously depicted in Figure 3.18, stacked on top of each other.
+Figure 3.24 展示了 multi-head attention 模块的结构，它由多个 single-head attention 模块（如之前 Figure 3.18 所示）堆叠而成。
 
 <div align="center">
 <img src="https://sebastianraschka.com/images/LLMs-from-scratch-images/ch03_compressed/24.webp" width="700px">
@@ -308,7 +320,7 @@ Figure 3.24 illustrates the structure of a multi-head attention module, which co
 
 ---
 
-For example, if we use this `MultiHeadAttentionWrapper` class with two attention heads (via `num_heads=2`) and `CausalAttention` output dimension `d_out=2`, this results in a 4-dimensional context vectors (`d_out * num_heads=4`), as illustrated in Figure 3.25.
+例如，如果我们使用带有两个 attention head 的 `MultiHeadAttentionWrapper` 类（通过 `num_heads=2`）和 `CausalAttention` 输出维度 `d_out=2`，则会产生 4 维的 context vectors（`d_out * num_heads=4`），如 Figure 3.25 所示。
 
 <div align="center">
 <img src="https://sebastianraschka.com/images/LLMs-from-scratch-images/ch03_compressed/25.webp" width="700px">
@@ -320,10 +332,8 @@ For example, if we use this `MultiHeadAttentionWrapper` class with two attention
 
 ### 3.6.2 Implementing multi-head attention with weight splits
 
-The `MultiHeadAttention` class takes an integrated approach. It starts with a multi-head layer and then internally splits this layer into individual attention heads, as illustrated in Figure 3.26.
+`MultiHeadAttention` 类采用了一种集成的方法。它从一个 multi-head 层开始，然后在内部将该层拆分为单独的 attention head，如 Figure 3.26 所示。
 
 <div align="center">
 <img src="https://sebastianraschka.com/images/LLMs-from-scratch-images/ch03_compressed/26.webp" width="700px">
 </div>
-
-
