@@ -1,8 +1,8 @@
 ## 4.1 Coding an LLM architecture
 
-LLMs, such as GPT (which stands for Generative Pretrained Transformer), are large deep neural network architectures designed to generate new text one word (or token) at a time.
+LLM（如 GPT，即 Generative Pretrained Transformer）是大型深度神经网络架构，旨在逐词（或逐 token）生成新文本。
 
-Figure 4.2 provides a top-down view of a GPT-like LLM, with its main components highlighted.
+图 4.2 提供了类 GPT 的 LLM 的顶层视图，其中突出显示了主要组件。
 
 <div align="center">
 <img src="https://sebastianraschka.com/images/LLMs-from-scratch-images/ch04_compressed/02.webp" width="700px">
@@ -22,7 +22,7 @@ GPT_CONFIG_124M = {
 
 ---
 
-Using the configuration above, we will start this chapter by implementing a GPT placeholder architecture (DummyGPTModel) in this section, as shown in Figure 4.3. This will provide us with a big-picture view of how everything fits together and what other components we need to code in the upcoming sections to assemble the full GPT model architecture.
+使用上述配置，我们将在本节中从实现一个 GPT 占位架构（DummyGPTModel）开始，如图 4.3 所示。这将为我们提供一个全局视角，了解所有部分如何协同工作，以及在后续章节中还需要编写哪些组件来组装完整的 GPT 模型架构。
 
 <div align="center">
 <img src="https://sebastianraschka.com/images/LLMs-from-scratch-images/ch04_compressed/03.webp" width="700px">
@@ -76,7 +76,7 @@ class DummyLayerNorm(nn.Module):
 
 ---
 
-Next, we will prepare the input data and initialize a new GPT model to illustrate its usage. Building on the figures we have seen in chapter 2, where we coded the tokenizer, Figure 4.4 provides a high-level overview of how data flows in and out of a GPT model.
+接下来，我们将准备输入数据并初始化一个新的 GPT 模型来演示其用法。基于我们在第 2 章中编写 tokenizer 时所看到的图示，图 4.4 提供了数据如何流入和流出 GPT 模型的高层概览。
 
 <div align="center">
 <img src="https://sebastianraschka.com/images/LLMs-from-scratch-images/ch04_compressed/04.webp?123" width="700px">
@@ -102,21 +102,21 @@ logits = model(batch)
 print("Output shape:", logits.shape)  # torch.Size([2, 4, 50257])
 ```
 
-The output tensor has two rows corresponding to the two text samples. Each text sample consists of 4 tokens; each token is a 50,257-dimensional vector, which matches the size of the tokenizer's vocabulary.
+输出 tensor 有两行，分别对应两个文本样本。每个文本样本由 4 个 token 组成；每个 token 是一个 50,257 维的向量，与 tokenizer 的词汇表大小一致。
 
-The embedding has 50,257 dimensions because each of these dimensions refers to a unique token in the vocabulary. At the end of this chapter, when we implement the postprocessing code, we will convert these 50,257-dimensional vectors back into token IDs, which we can then decode into words.
+embedding 具有 50,257 个维度，因为其中每个维度对应词汇表中的一个唯一 token。在本章末尾，当我们实现后处理代码时，会将这些 50,257 维的向量转换回 token ID，然后将其解码为单词。
 
 
 
 ## 4.2 Normalizing activations with layer normalization
 
-Training deep neural networks with many layers can sometimes prove challenging due to issues like **vanishing** or **exploding gradients**. 
+训练具有多层的深度神经网络有时可能面临挑战，原因在于 **vanishing gradient**（梯度消失）或 **exploding gradient**（梯度爆炸）等问题。
 
-We will implement layer normalization to improve the stability and efficiency of neural network training.
+我们将实现 layer normalization 来提高神经网络训练的稳定性和效率。
 
-The main idea behind layer normalization is to adjust the activations (outputs) of a neural network layer to have a mean of 0 and a variance of 1, also known as **unit variance**.
+layer normalization 背后的核心思想是将神经网络层的 activation（输出）调整为均值为 0、方差为 1（也称为 **unit variance**，单位方差）。
 
-Figure 4.5 provides a visual overview of how layer normalization functions.
+图 4.5 提供了 layer normalization 工作方式的可视化概览。
 
 <div align="center">
 <img src="https://sebastianraschka.com/images/LLMs-from-scratch-images/ch04_compressed/05.webp" width="600px">
@@ -124,27 +124,27 @@ Figure 4.5 provides a visual overview of how layer normalization functions.
 
 ---
 
-$x$ is a vector of shape $(1, d)$, and $\mu$ and $\sigma^2$ are the mean and variance of $x$, respectively.
+$x$ 是形状为 $(1, d)$ 的向量，$\mu$ 和 $\sigma^2$ 分别是 $x$ 的均值和方差。
 
-1. Calculate the mean and variance of $x$:
+1. 计算 $x$ 的均值和方差：
     $$
     \mu = \frac{1}{d} \sum_{i=1}^{d} x_i, \quad
     \sigma^2 = \frac{1}{d} \sum_{i=1}^{d} (x_i - \mu)^2
     $$
 
-2. Normalize $x$ using the mean and variance:
+2. 使用均值和方差对 $x$ 进行归一化：
     $$
     \hat{x_{i}} = \frac{x_i - \mu}{\sqrt{\sigma^2 + \epsilon}}
     $$
 
-**Tips:**
+**提示：**
 
-- $x_i$ is the $i$-th element of $x$;
-- $\hat{x_{i}}$ is the normalized element;
-- $\epsilon$ is a small constant to avoid division by zero.
+- $x_i$ 是 $x$ 的第 $i$ 个元素；
+- $\hat{x_{i}}$ 是归一化后的元素；
+- $\epsilon$ 是一个很小的常数，用于避免除以零。
 
 
-The `dim` parameter specifies the dimension along which the calculation of the statistic (here, mean or variance) should be performed in a tensor, as shown in Figure 4.6.
+`dim` 参数指定了在 tensor 中沿哪个维度执行统计量计算（此处为均值或方差），如图 4.6 所示。
 
 <div align="center">
 <img src="https://sebastianraschka.com/images/LLMs-from-scratch-images/ch04_compressed/06.webp" width="600px">
@@ -154,11 +154,11 @@ The `dim` parameter specifies the dimension along which the calculation of the s
 
 ## 4.3 Implementing a feed forward network with GELU activations
 
-Historically, the ReLU activation function has been commonly used in deep learning due to its simplicity and effectiveness across various neural network architectures. However, in LLMs, several other activation functions are employed beyond the traditional ReLU. Two notable examples are GELU (Gaussian Error Linear Unit) and SwiGLU (Swish-Gated Linear Unit).
+从历史上看，ReLU activation function 因其简单性和在各种神经网络架构中的有效性而被广泛使用。然而，在 LLM 中，除了传统的 ReLU 之外，还采用了其他几种 activation function。两个值得注意的例子是 GELU（Gaussian Error Linear Unit）和 SwiGLU（Swish-Gated Linear Unit）。
 
-GELU and SwiGLU are more complex and smooth activation functions incorporating Gaussian and sigmoid-gated linear units, respectively.
+GELU 和 SwiGLU 是更复杂且平滑的 activation function，分别采用了 Gaussian 和 sigmoid 门控线性单元。
 
-The GELU activation function can be implemented in several ways; the exact version is defined as $\text{GELU}(x)=x⋅\Phi(x)$, where $\Phi(x)$ is the cumulative distribution function of the standard Gaussian distribution. In practice, however, it's common to implement a computationally cheaper approximation (the original GPT-2 model was also trained with this approximation):
+GELU activation function 可以通过多种方式实现；其精确版本定义为 $\text{GELU}(x)=x⋅\Phi(x)$，其中 $\Phi(x)$ 是标准 Gaussian 分布的累积分布函数。但在实践中，通常使用计算成本更低的近似（原始的 GPT-2 模型也是用这种近似进行训练的）：
 
 $$
 \operatorname{GELU}(x) \approx 0.5 \cdot x \cdot\left(1+\tanh \left[\sqrt{(2 / \pi)} \cdot\left(x+0.044715 \cdot x^{3}\right]\right)\right.
@@ -179,7 +179,7 @@ class GELU(nn.Module):
 
 ---
 
-Draw the GELU and ReLU activation functions using the code below, as shown in Figure 4.8.
+使用以下代码绘制 GELU 和 ReLU activation function，如图 4.8 所示。
 
 ```python
 import matplotlib.pyplot as plt
@@ -200,20 +200,20 @@ plt.tight_layout()
 plt.show()
 ```
 
-As we can see in the resulting plot in Figure 4.8, ReLU is a piecewise linear function that outputs the input directly if it is positive; otherwise, it outputs zero. GELU is a smooth, nonlinear function that approximates ReLU but with a non-zero gradient for negative values.
+从图 4.8 的结果图中可以看到，ReLU 是一个分段线性函数，如果输入为正则直接输出输入值，否则输出零。GELU 是一个平滑的非线性函数，近似于 ReLU，但对负值有非零梯度。
 
-The smoothness of GELU, as shown in Figure 4 .8, can lead to better optimization properties during training, as it allows for more nuanced adjustments to the model's parameters.
+GELU 的平滑性（如图 4.8 所示）可以在训练过程中带来更好的优化特性，因为它允许对模型参数进行更细微的调整。
 
 ---
 
-Figure 4.9 shows how the embedding size is manipulated inside this small feed forward neural network when we pass it some inputs.
+图 4.9 展示了当我们传入一些输入时，embedding 大小在这个小型 feed forward 神经网络内部是如何变化的。
 
 <div align="center">
 <img src="https://sebastianraschka.com/images/LLMs-from-scratch-images/ch04_compressed/09.webp?12" width="600px">
 </div>
 
 
-Although the input and output dimensions of this module are the same, it internally expands the embedding dimension into a higher-dimensional space through the first linear layer as illustrated in Figure 4.10. This expansion is followed by a non-linear GELU activation, and then a contraction back to the original dimension with the second linear transformation. Such a design allows for the exploration of a richer representation space.
+尽管该模块的输入和输出维度相同，但它在内部通过第一个线性层将 embedding 维度扩展到更高维的空间，如图 4.10 所示。这种扩展之后是一个非线性的 GELU activation，然后通过第二个线性变换收缩回原始维度。这样的设计允许探索更丰富的表示空间。
 
 <div align="center">
 <img src="https://sebastianraschka.com/images/LLMs-from-scratch-images/ch04_compressed/10.webp" width="600px">
@@ -223,7 +223,7 @@ Although the input and output dimensions of this module are the same, it interna
 
 ## 4.4 Adding shortcut connections
 
-Originally, shortcut connections were proposed for deep networks in computer vision (specifically, in residual networks) to mitigate the challenge of vanishing gradients. The vanishing gradient problem refers to the issue where gradients (which guide weight updates during training) become progressively smaller as they propagate backward through the layers, making it difficult to effectively train earlier layers, as illustrated in Figure 4.12.
+shortcut connection 最初是在计算机视觉的深度网络中（具体来说是在 residual network 中）提出的，用于缓解 vanishing gradient 问题。vanishing gradient 问题是指梯度（在训练过程中指导权重更新）在反向传播通过各层时逐渐变小，导致难以有效训练较早的层，如图 4.12 所示。
 
 <div align="center">
 <img src="https://sebastianraschka.com/images/LLMs-from-scratch-images/ch04_compressed/12.webp?123" width="600px">
@@ -233,19 +233,19 @@ Originally, shortcut connections were proposed for deep networks in computer vis
 
 ## 4.5 Connecting attention and linear layers in a transformer block
 
-In this section, we are implementing the transformer block, a fundamental building block of GPT and other LLM architectures. This block combines several concepts we have previously covered: multi-head attention, layer normalization, dropout, feed forward layers, and GELU activations, as illustrated in Figure 4.13. 
+在本节中，我们将实现 transformer block，它是 GPT 和其他 LLM 架构的基本构建模块。该模块结合了我们之前介绍的几个概念：multi-head attention、layer normalization、dropout、feed forward 层和 GELU activation，如图 4.13 所示。
 
 <div align="center">
 <img src="https://sebastianraschka.com/images/LLMs-from-scratch-images/ch04_compressed/13.webp?1" width="700px">
 </div>
 
-The idea is that the self-attention mechanism in the multi-head attention block identifies and analyzes relationships between elements in the input sequence. In contrast, the feed forward network modifies the data individually at each position. This combination not only enables a more nuanced understanding and processing of the input but also enhances the model's overall capacity for handling complex data patterns.
+其核心思想是，multi-head attention block 中的 self-attention 机制识别并分析输入序列中元素之间的关系。而 feed forward 网络则在每个位置上独立地修改数据。这种组合不仅能够更细致地理解和处理输入，还增强了模型处理复杂数据模式的整体能力。
 
 
 
 ## 4.6 Coding the GPT model
 
-Before we assemble the GPT-2 model in code, let's look at its overall structure in Figure 4.15, which combines all the concepts we covered so far in this chapter
+在用代码组装 GPT-2 模型之前，让我们在图 4.15 中查看其整体结构，该图结合了本章到目前为止涵盖的所有概念。
 
 <div align="center">
 <img src="https://sebastianraschka.com/images/LLMs-from-scratch-images/ch04_compressed/15.webp" width="700px">
@@ -255,7 +255,7 @@ Before we assemble the GPT-2 model in code, let's look at its overall structure 
 
 ## 4.7 Generating text
 
-How a generative model like an LLM generates text one word (or token) at a time, as shown in Figure 4.16.
+如图 4.16 所示，像 LLM 这样的生成模型是如何逐词（或逐 token）生成文本的。
 
 <div align="center">
 <img src="https://sebastianraschka.com/images/LLMs-from-scratch-images/ch04_compressed/16.webp" width="700px">
@@ -263,7 +263,7 @@ How a generative model like an LLM generates text one word (or token) at a time,
 
 ---
 
-The process by which a GPT model goes from output tensors to generated text involves several steps, as illustrated in Figure 4.17. These steps include decoding the output tensors, selecting tokens based on a probability distribution, and converting these tokens into human-readable text.
+GPT 模型从输出 tensor 到生成文本的过程涉及多个步骤，如图 4.17 所示。这些步骤包括解码输出 tensor、基于概率分布选择 token，以及将这些 token 转换为人类可读的文本。
 
 <div align="center">
 <img src="https://sebastianraschka.com/images/LLMs-from-scratch-images/ch04_compressed/17.webp" width="800px">
@@ -286,7 +286,7 @@ def generate_text_simple(model: nn.Module, idx: torch.Tensor,
 
 ---
 
-This process of generating one token ID at a time and appending it to the context using the `generate_text_simple` function is further illustrated in Figure 4.18.
+使用 `generate_text_simple` 函数逐个生成 token ID 并将其追加到上下文中的过程，在图 4.18 中进一步说明。
 
 <div align="center">
 <img src="https://sebastianraschka.com/images/LLMs-from-scratch-images/ch04_compressed/18.webp" width="800px">
@@ -306,5 +306,3 @@ print("Output:", out)  # torch.Size([1, 4 + 6 = 10])
 decoded_text = tokenizer.decode(out.squeeze(0).tolist())
 print(decoded_text)
 ```
-
-
