@@ -78,27 +78,27 @@ inputs = torch.tensor(
 **逐步计算过程：**
 
 1. 实现 self-attention 的第一步是计算中间值 $\omega$，称为 attention scores，如 Figure 3.8 所示。
-    ```math
+    $$
     \omega_{ij} = x^{(i)} \cdot (x^{(j)})^T, \quad \text{x.shape = (T, d)}
-    ```
+    $$
     
     <div align="center">
     <img src="https://sebastianraschka.com/images/LLMs-from-scratch-images/ch03_compressed/08.webp" width="700px">
     </div>
 
 2. 下一步，如 Figure 3.9 所示，我们对之前计算的每个 attention score 进行归一化。
-    ```math
+    $$
     \alpha_{ij} = \frac{\exp(\omega_{ij})}{\sum_{k=1}^T \exp(\omega_{ik})}
-    ```
+    $$
 
     <div align="center">
     <img src="https://sebastianraschka.com/images/LLMs-from-scratch-images/ch03_compressed/09.webp" width="700px">
     </div>
 
 3. 现在我们已经计算了归一化的 attention weights，可以进行 Figure 3.10 所示的最后一步：通过将嵌入的输入 token $x^{i}$ 与相应的 attention weights 相乘，然后将结果向量求和，来计算 context vector $z^{(2)}$。
-    ```math
+    $$
     z^{(i)} = \sum_{j=1}^T \alpha_{ij} x^{(j)}
-    ```
+    $$
     
     <div align="center">
     <img src="https://sebastianraschka.com/images/LLMs-from-scratch-images/ch03_compressed/10.webp" width="700px">
@@ -106,7 +106,7 @@ inputs = torch.tensor(
 
     例如 $z^{(2)}$ 的计算（矩阵化形式）：
     
-    ```math
+    $$
     z^{(2)} = W^{(2)}X = 
     \begin{bmatrix}
     \alpha_{21} &  \alpha_{22} &..,  &\alpha_{2T}
@@ -117,7 +117,7 @@ inputs = torch.tensor(
     ..,\\
     x^{(T)}\\
     \end{bmatrix}
-    ```
+    $$
 
 Figure 3.10 中所示的 context vector $z^{(2)}$ 是所有输入向量的加权和。
 
@@ -143,22 +143,22 @@ Figure 3.10 中所示的 context vector $z^{(2)}$ 是所有输入向量的加权
 设输入矩阵 $X\in\mathbb{R}^{n\times d}$：
 
 1. 首先，在 Figure 3.12 所示的步骤 1 中，我们添加一个额外的 for 循环来计算所有输入对的 dot product；
-   ```math
+   $$
    S = XX^T
-   ```
+   $$
 
    $S \in \mathbb{R}^{n\times n} \text{ is the attention scores matrix}$
 2. 在 Figure 3.12 所示的步骤 2 中，我们现在对每一行进行归一化，使每行的值之和为 1；
-   ```math
+   $$
    W = \mathrm{softmax}_{\text{row}}(S),\quad
    W_{ij}=\frac{\exp(S_{ij})}{\sum_{k=1}^{n}\exp(S_{ik})}
-   ```
+   $$
 
    $W \in \mathbb{R}^{n\times n} \text{ is the attention weights matrix}$
 3. 在第三步也是最后一步中，我们使用这些 attention weights 通过矩阵乘法计算所有 context vectors。
-   ```math
+   $$
    C = WX
-   ```
+   $$
 
    $C \in \mathbb{R}^{n\times d} \text{ is the context vectors matrix}$
 
@@ -185,35 +185,35 @@ Figure 3.10 中所示的 context vector $z^{(2)}$ 是所有输入向量的加权
 </div>
 
 1. 首先定义一些变量；接下来，初始化 Figure 3.14 中所示的三个权重矩阵 $W_q$、$W_k$ 和 $W_v$；
-   ```math
+   $$
    x^{(2)} = \text{inputs[1]}, \quad d_{in} = \text{inputs.shape[1]}, \quad d_{out} = 2 \\
    q^{(2)} = x^{(2)} W_q, \quad k^{(2)} = x^{(2)} W_k, \quad v^{(2)} = x^{(2)} W_v
-   ```
+   $$
    
-   ```math
+   $$
    Q=X W_q, \quad K=X W_k, \quad V=X W_v
-   ```
+   $$
 
 2. 第二步是计算 attention scores，如 Figure 3.15 所示；
-    ```math
+    $$
     \omega_{i} = q^{(i)} \cdot K^T, \quad \omega_{ij} = q^{(i)} \cdot (k^{(j)})^T
-    ```
+    $$
 
     <div align="center">
     <img src="https://sebastianraschka.com/images/LLMs-from-scratch-images/ch03_compressed/15.webp" width="800px">
     </div>
 3. 第三步是将 attention scores 转换为 attention weights，如 Figure 3.16 所示；
-    ```math
+    $$
     \alpha_{ij} = \frac{\exp(\omega_{ij})}{\sum_{k=1}^{n}\exp(\omega_{ik})}
-    ```
+    $$
 
     <div align="center">
     <img src="https://sebastianraschka.com/images/LLMs-from-scratch-images/ch03_compressed/16.webp" width="800px">
     </div>
 4. 最后一步是计算 context vectors，如 Figure 3.17 所示。
-    ```math
+    $$
     z^{(i)} = \sum_{j=1}^T \alpha_{ij} v^{(j)}
-    ```
+    $$
 
     <div align="center">
     <img src="https://sebastianraschka.com/images/LLMs-from-scratch-images/ch03_compressed/17.webp" width="800px">
@@ -226,24 +226,24 @@ Figure 3.10 中所示的 context vector $z^{(2)}$ 是所有输入向量的加权
 Figure 3.18 总结了我们刚刚实现的 self-attention mechanism。
 
 1. 计算 queries、keys 和 values：
-    ```math
+    $$
     Q=X W_q, \quad K=X W_k, \quad V=X W_v
-    ```
+    $$
 
 2. 计算 attention weight 矩阵：
-    ```math
+    $$
     W = QK^T
-    ```
+    $$
 
 3. 归一化 attention weight 矩阵：
-    ```math
+    $$
     A = \mathrm{softmax}_{row}(W), \quad A_{ij} = \frac{\exp(W_{ij})}{\sum_{k=1}^{n}\exp(W_{ik})}
-    ```
+    $$
     
 4. 计算 context vectors：
-    ```math
+    $$
     Z = A V
-    ```
+    $$
 
 <div align="center">
 <img src="https://sebastianraschka.com/images/LLMs-from-scratch-images/ch03_compressed/18.webp" width="700px">
