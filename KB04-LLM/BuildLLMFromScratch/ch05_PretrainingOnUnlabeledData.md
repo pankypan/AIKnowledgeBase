@@ -2,7 +2,7 @@
 
 ### 5.1.1 Using GPT to generate text
 
-Figure 5.3 illustrates a three-step text generation process using a GPT model. 
+图 5.3 展示了使用 GPT 模型生成文本的三步流程。
 
 <div align="center">
 <img src="https://sebastianraschka.com/images/LLMs-from-scratch-images/ch05_compressed/gpt-process.webp" width="800px">
@@ -32,9 +32,9 @@ model.eval()
 
 ### 5.1.2 Calculating the text generation loss
 
-This section explores techniques for numerically assessing text quality generated during training by calculating a so-called text generation loss. 
+本节探讨通过计算所谓的 text generation loss 来数值化评估训练过程中生成文本质量的技术。
 
-Figure 5.4 illustrates the overall flow from input text to LLM-generated text using a five step procedure.
+图 5.4 展示了从输入文本到 LLM 生成文本的整体流程，包含五个步骤。
 
 <div align="center">
 <img src="https://sebastianraschka.com/images/LLMs-from-scratch-images/ch05_compressed/proba-to-text.webp" width="800px">
@@ -62,11 +62,11 @@ print(probas.shape)  # (batch_size, context_size, vocab_size) torch.Size([2, 3, 
 
 ---
 
-The model produces random text that is different from the target text because it has not been trained yet.
+模型生成的是与目标文本不同的随机文本，因为它尚未经过训练。
 
-Part of the text evaluation process that we implement in the remainder of this section, is to measure "how far" the generated tokens are from the correct predictions (targets).
+我们在本节剩余部分实现的文本评估过程的一部分，是衡量生成的 token 与正确预测（targets）之间的"距离"。
 
-The model training aims to increase the softmax probability in the index positions corresponding to the correct target token IDs, as illustrated in Figure 5.6.
+模型训练的目标是提高与正确目标 token ID 对应的索引位置上的 softmax 概率，如图 5.6 所示。
 
 <div align="center">
 <img src="https://sebastianraschka.com/images/LLMs-from-scratch-images/ch05_compressed/proba-index.webp" width="800px">
@@ -74,7 +74,7 @@ The model training aims to increase the softmax probability in the index positio
 
 ---
 
-We calculate the loss for the probability scores of the two example batches, `target_probas_1` and `target_probas_2`. The main steps are illustrated in Figure 5.7.
+我们计算两个示例 batch 的概率分数的 loss，即 `target_probas_1` 和 `target_probas_2`。主要步骤如图 5.7 所示。
 
 <div align="center">
 <img src="https://sebastianraschka.com/images/LLMs-from-scratch-images/ch05_compressed/cross-entropy.webp?123" width="800px">
@@ -94,7 +94,7 @@ neg_avg_log_probas = avg_log_probas * -1  # scalar value
 
 ---
 
-Use **Cross Entropy** to calculate the loss:
+使用 **Cross Entropy** 计算 loss：
 
 $$
 H(y, \hat{y}) = -\sum_{i=1}^{n} y_i \log(\hat{y}_i)
@@ -111,17 +111,17 @@ loss = torch.nn.functional.cross_entropy(logits_flat, targets_flat)  # scalar va
 
 ### 5.1.3 Calculating the training and validation set losses
 
-First, we prepare the training and validation datasets that we will use to train the LLM later in this chapter.
+首先，我们准备本章后续用于训练 LLM 的 training set 和 validation set。
 
-Next, we divide the dataset into a training and a validation set and use the data loaders from chapter 2 to prepare the batches for LLM training. This process is visualized in Figure 5.9.
+接下来，我们将数据集划分为 training set 和 validation set，并使用第 2 章中的 data loader 为 LLM 训练准备 batch。该过程如图 5.9 所示。
 
-Then, we calculate the cross entropy for the training and validation sets.
+然后，我们计算 training set 和 validation set 的 cross entropy。
 
 <div align="center">
 <img src="https://sebastianraschka.com/images/LLMs-from-scratch-images/ch05_compressed/batching.webp" width="800px">
 </div>
 
-First, we define two functions to calculate the loss for a batch and a loader:
+首先，我们定义两个函数来计算单个 batch 和整个 loader 的 loss：
 
 ```python
 def calc_loss_batch(input_batch, target_batch, model, device):
@@ -151,7 +151,7 @@ def calc_loss_loader(data_loader, model, device, num_batches=None):
     return total_loss / num_batches
 ```
 
-Then, we load the dataset and create the data loaders:
+然后，我们加载数据集并创建 data loader：
 
 ```python
 import os
@@ -200,13 +200,13 @@ print(f"Validation loss: {val_loss:.4f}")
 
 ## 5.2 Training an LLM
 
-For this, we focus on a straightforward training loop, as illustrated in Figure 5.11, to keep the code concise and readable. However, interested readers can learn about more advanced techniques, including learning rate warmup, cosine annealing, and gradient clipping.
+为此，我们聚焦于一个简洁的训练循环，如图 5.11 所示，以保持代码简洁易读。不过，感兴趣的读者可以进一步学习更高级的技术，包括 learning rate warmup、cosine annealing 和 gradient clipping。
 
 <div align="center">
 <img src="https://sebastianraschka.com/images/LLMs-from-scratch-images/ch05_compressed/train-steps.webp" width="800px">
 </div>
 
-Let's see this all in action by training a GPTModel instance for 10 epochs using an AdamW optimizer and the `train_model_simple` function we defined earlier.
+让我们通过使用 AdamW optimizer 和之前定义的 `train_model_simple` 函数，对一个 GPTModel 实例进行 10 个 epoch 的训练来看看实际效果。
 
 ```python
 torch.manual_seed(123)
@@ -223,7 +223,7 @@ train_losses, val_losses, tokens_seen = train_model_simple(
 
 ---
 
-The resulting training and validation loss plot is shown in Figure 5.12.
+训练和验证的 loss 曲线如图 5.12 所示。
 
 <div align="center">
 <img src="https://sebastianraschka.com/images/LLMs-from-scratch-images/ch05_compressed/loss-plot.webp" width="800px">
@@ -255,22 +255,22 @@ plot_losses(epochs_tensor, tokens_seen, train_losses, val_losses)
 
 ## 5.3 Decoding strategies to control randomness
 
-In this section, we will cover text generation strategies (also called decoding strategies) to generate more original text. 
+本节我们将介绍文本生成策略（也称为 decoding strategies），以生成更具原创性的文本。
 
-Then, we will cover two techniques, **temperature scaling**, and **top-k sampling**, to improve this function.
+然后，我们将介绍两种改进该函数的技术：**temperature scaling** 和 **top-k sampling**。
 
 
 
 ### 5.3.1 Temperature scaling
 
-This section introduces **temperature scaling**, a technique that adds a probabilistic selection process to the next-token generation task.
+本节介绍 **temperature scaling**，这是一种为 next-token 生成任务添加概率选择过程的技术。
 
-Previously, inside the `generate_text_simple` function, we always sampled the token with the highest probability as the next token using `torch.argmax`, also known as **greedy decoding**. 
+之前，在 `generate_text_simple` 函数中，我们总是使用 `torch.argmax` 选择概率最高的 token 作为下一个 token，这也被称为 **greedy decoding**。
 
-To generate text with more variety, we can replace the `argmax` with a function that samples from a probability distribution 
+为了生成更多样化的文本，我们可以将 `argmax` 替换为从概率分布中采样的函数。
 
 
-Probability distribution:
+概率分布：
 
 
 ```python
@@ -301,7 +301,7 @@ def print_sampled_tokens(probas):
 print_sampled_tokens(probas)
 ```
 
-We can further control the distribution and selection process via a concept called **temperature scaling**, where temperature scaling is just a fancy description for dividing the logits by a number greater than 0:
+我们可以通过一个叫做 **temperature scaling** 的概念进一步控制分布和选择过程，其中 temperature scaling 本质上就是将 logits 除以一个大于 0 的数：
 
 ```python
 """
@@ -335,7 +335,7 @@ plt.show()
 
 ### 5.3.2 Top-k sampling
 
-In top-k sampling, we can restrict the sampled tokens to the top-k most likely tokens and exclude all other tokens from the selection process by masking their probability scores, as illustrated in Figure 5.15.
+在 top-k sampling 中，我们可以将采样的 token 限制为概率最高的前 k 个 token，并通过将其他所有 token 的概率分数遮蔽来排除它们，如图 5.15 所示。
 
 <div align="center">
 <img src="https://sebastianraschka.com/images/LLMs-from-scratch-images/ch05_compressed/topk.webp" width="800px">
@@ -362,7 +362,7 @@ print(topk_probas)
 
 ### 5.3.3 Modifying the text generation function
 
-In this section, we will modify the `generate_text_simple` function to add temperature scaling and top-k sampling.
+本节中，我们将修改 `generate_text_simple` 函数，添加 temperature scaling 和 top-k sampling 功能。
 
 ```python
 def generate(model, idx, max_new_tokens: int, context_size: int, 
@@ -401,7 +401,7 @@ def generate(model, idx, max_new_tokens: int, context_size: int,
     return idx
 ```
 
-Use the `generate` function to generate text:
+使用 `generate` 函数生成文本：
 
 ```python
 torch.manual_seed(123)
@@ -420,13 +420,13 @@ print("Output text:\n", token_ids_to_text(token_ids, tokenizer))
 
 ## 5.4 Loading and saving model weights in PyTorch
 
-Fortunately, saving a PyTorch model is relatively straightforward. The recommended way is to save a model's so-called `state_dict`, a dictionary mapping each layer to its parameters, using the `torch.save` function as follows:
+幸运的是，保存 PyTorch 模型相对简单。推荐的方式是使用 `torch.save` 函数保存模型的 `state_dict`（一个将每一层映射到其参数的字典），方法如下：
 
 ```python
 torch.save(model.state_dict(), "model.pth")
 ```
 
-Then, after saving the model weights via the `state_dict`, we can load the model weights into a new `GPTModel` model instance as follows:
+然后，在通过 `state_dict` 保存模型权重之后，我们可以将模型权重加载到一个新的 `GPTModel` 模型实例中，方法如下：
 
 ```python
 model = GPTModel(GPT_CONFIG_124M)
@@ -434,7 +434,7 @@ model.load_state_dict(torch.load("model.pth"))
 model.eval()
 ```
 
-Using `torch.save`, we can save both the model and optimizer state_dict contents as follows:
+使用 `torch.save`，我们可以同时保存模型和 optimizer 的 state_dict 内容，方法如下：
 
 ```python
 torch.save(
@@ -448,6 +448,5 @@ torch.save(
 
 ## 5.5 Loading pretrained weights from OpenAI
 
-For detail about loading pretrained weights from OpenAI, please read the reference section from the Project.
-
+关于从 OpenAI 加载 pretrained weights 的详细信息，请阅读项目中的参考章节。
 
