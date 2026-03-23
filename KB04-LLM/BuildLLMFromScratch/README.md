@@ -6,6 +6,8 @@
 2. [ch03_CodingAttentionMechanisms](./ch03_CodingAttentionMechanisms.md)
 3. [ch04_ImplementingAGPTModel](./ch04_ImplementingAGPTModel.md)
 4. [ch05_PretrainingOnUnlabeledData](./ch05_PretrainingOnUnlabeledData.md)
+5. [ch06_FinetuningForClassification](./ch06_FinetuningForClassification.md)  # todo
+6. [FinetuningToFollowInstructions](./ch07_FinetuningToFollowInstructions.md)  # todo
 
 
 
