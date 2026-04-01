@@ -2,7 +2,21 @@
 
 ## 统计机器学习算法
 
-- [《统计学习方法》(李航)](https://book.douban.com/subject/10590856/)  # TODO
+- [CH01-统计学习及监督学习概论](./StatisticalLearningMethods/CH01-统计学习及监督学习概论.md)
+- [CH04-朴素贝叶斯算法](./StatisticalLearningMethods/CH04-朴素贝叶斯算法.md)
+- [CH07-支持向量机](./StatisticalLearningMethods/CH07-支持向量机.md)  # Todo
+- [CH10-隐马尔可夫模型](./StatisticalLearningMethods/CH10-隐马尔可夫模型.md)  # Todo
+- [CH13-无监督学习概论](./StatisticalLearningMethods/CH13-无监督学习概论.md)  # Todo
+- [CH14-聚类方法](./StatisticalLearningMethods/CH14-聚类方法.md)  # Todo
+- [CH15-奇异值分解](./StatisticalLearningMethods/CH15-奇异值分解.md)  # Todo
+- [CH16-主成分分析](./StatisticalLearningMethods/CH16-主成分分析.md)  # Todo
+- [CH19-马尔可夫链蒙特卡罗法](./StatisticalLearningMethods/CH19-马尔可夫链蒙特卡罗法.md)  # Todo
+- [CH20-潜在狄利克雷分配](./StatisticalLearningMethods/CH20-潜在狄利克雷分配.md)  # Todo
+- [CH21-PageRank算法](./StatisticalLearningMethods/CH21-PageRank算法.md)  # Todo
+
+
+**References:**
+- [《统计学习方法》(李航)](https://book.douban.com/subject/10590856/)
 
 
 
@@ -30,4 +44,10 @@
 
 - [线性规划](./OtherAlgos/LinearProgramming.md)
 - 遗传算法(GA)  # TODO
+
+
+
+
+
+
 
