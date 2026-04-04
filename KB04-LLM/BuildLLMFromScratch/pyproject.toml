@@ -1,0 +1,28 @@
+[build-system]
+requires = ["setuptools>=65.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "build-llm-from-scratch"
+version = "0.1.0"
+description = "从零实现大型语言模型（LLM）教学项目，基于 PyTorch 的 GPT 模型构建与预训练示例。"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [ { name = "pankypan" } ]
+keywords = ["llm", "gpt", "transformer", "pytorch", "tokenization"]
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "License :: OSI Approved :: MIT License",
+  "Operating System :: OS Independent",
+  "Topic :: Scientific/Engineering",
+  "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+
+dependencies = [
+  "torch>=2.0.0",
+  "tiktoken>=0.4.0",
+  "matplotlib>=3.6.0",
+]

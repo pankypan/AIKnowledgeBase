@@ -5,8 +5,9 @@
 图 5.3 展示了使用 GPT 模型生成文本的三步流程。
 
 <div align="center">
-<img src="https://sebastianraschka.com/images/LLMs-from-scratch-images/ch05_compressed/gpt-process.webp" width="800px">
+<img src="./assets/figure-5.3.png">
 </div>
+
 
 ```python
 import torch
@@ -37,8 +38,9 @@ model.eval()
 图 5.4 展示了从输入文本到 LLM 生成文本的整体流程，包含五个步骤。
 
 <div align="center">
-<img src="https://sebastianraschka.com/images/LLMs-from-scratch-images/ch05_compressed/proba-to-text.webp" width="800px">
+<img src="./assets/figure-5.4.png">
 </div>
+
 
 ```python
 inputs = torch.tensor([
@@ -69,16 +71,20 @@ print(probas.shape)  # (batch_size, context_size, vocab_size) torch.Size([2, 3, 
 模型训练的目标是提高与正确目标 token ID 对应的索引位置上的 softmax 概率，如图 5.6 所示。
 
 <div align="center">
-<img src="https://sebastianraschka.com/images/LLMs-from-scratch-images/ch05_compressed/proba-index.webp" width="800px">
+<img src="./assets/figure-5.6.png">
 </div>
+
+
+
 
 ---
 
 我们计算两个示例 batch 的概率分数的 loss，即 `target_probas_1` 和 `target_probas_2`。主要步骤如图 5.7 所示。
 
 <div align="center">
-<img src="https://sebastianraschka.com/images/LLMs-from-scratch-images/ch05_compressed/cross-entropy.webp?123" width="800px">
+<img src="./assets/figure-5.7.png" width="700px">
 </div>
+
 
 ```python
 text_idx = 0
@@ -118,8 +124,9 @@ loss = torch.nn.functional.cross_entropy(logits_flat, targets_flat)  # scalar va
 然后，我们计算 training set 和 validation set 的 cross entropy。
 
 <div align="center">
-<img src="https://sebastianraschka.com/images/LLMs-from-scratch-images/ch05_compressed/batching.webp" width="800px">
+<img src="./assets/figure-5.9.png">
 </div>
+
 
 首先，我们定义两个函数来计算单个 batch 和整个 loader 的 loss：
 
@@ -203,8 +210,9 @@ print(f"Validation loss: {val_loss:.4f}")
 为此，我们聚焦于一个简洁的训练循环，如图 5.11 所示，以保持代码简洁易读。不过，感兴趣的读者可以进一步学习更高级的技术，包括 learning rate warmup、cosine annealing 和 gradient clipping。
 
 <div align="center">
-<img src="https://sebastianraschka.com/images/LLMs-from-scratch-images/ch05_compressed/train-steps.webp" width="800px">
+<img src="./assets/figure-5.11.png" width="600px">
 </div>
+
 
 让我们通过使用 AdamW optimizer 和之前定义的 `train_model_simple` 函数，对一个 GPTModel 实例进行 10 个 epoch 的训练来看看实际效果。
 
@@ -226,8 +234,9 @@ train_losses, val_losses, tokens_seen = train_model_simple(
 训练和验证的 loss 曲线如图 5.12 所示。
 
 <div align="center">
-<img src="https://sebastianraschka.com/images/LLMs-from-scratch-images/ch05_compressed/loss-plot.webp" width="800px">
+<img src="./assets/figure-5.12.png" width="500px">
 </div>
+
 
 ```python
 import matplotlib.pyplot as plt
@@ -338,8 +347,9 @@ plt.show()
 在 top-k sampling 中，我们可以将采样的 token 限制为概率最高的前 k 个 token，并通过将其他所有 token 的概率分数遮蔽来排除它们，如图 5.15 所示。
 
 <div align="center">
-<img src="https://sebastianraschka.com/images/LLMs-from-scratch-images/ch05_compressed/topk.webp" width="800px">
+<img src="./assets/figure-5.15.png" width="800px">
 </div>
+
 
 ```python
 top_k = 3
@@ -453,7 +463,7 @@ torch.save(
 1. 下载 gpt_download.py 文件：
     ```python
     import urllib.request
-
+    
     url = (
         "https://raw.githubusercontent.com/rasbt/"
         "LLMs-from-scratch/main/ch05/"
@@ -466,9 +476,9 @@ torch.save(
 2. 下载 OpenAI 的 pretrained weights：
     ```python
     from gpt_download import download_and_load_gpt2
-
+    
     settings, params = download_and_load_gpt2(model_size="124M", models_dir="gpt2")
-
+    
     print("Settings:", settings)
     print("Parameter dictionary keys:", params.keys())
     print(params["wte"])
@@ -483,14 +493,14 @@ torch.save(
         "gpt2-large (774M)": {"emb_dim": 1280, "n_layers": 36, "n_heads": 20},
         "gpt2-xl (1558M)": {"emb_dim": 1600, "n_layers": 48, "n_heads": 25},
     }
-
+    
     model_name = "gpt2-small (124M)"
     NEW_CONFIG = GPT_CONFIG_124M.copy()
-
+    
     NEW_CONFIG.update(model_configs[model_name])
     NEW_CONFIG.update({"context_length": 1024})
     NEW_CONFIG.update({"qkv_bias": True})
-
+    
     gpt = GPTModel(NEW_CONFIG)
     gpt.eval()
     ```
@@ -515,7 +525,6 @@ token_ids = generate(
 )
 print("Output text:\n", token_ids_to_text(token_ids, tokenizer))
 ```
-
 
 
 
