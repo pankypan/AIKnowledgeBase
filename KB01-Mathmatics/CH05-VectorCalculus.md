@@ -3,10 +3,15 @@
 ## 5.1 一元函数的微分
 
 > **定义 5.2 （导数）**
-> 对正实数 $h > 0$，函数 $f$ 在 $x$ 处的导数由下面的极限定义：$$\frac{\mathrm{d}f}{\mathrm{d}x} := \lim_{h \to 0} \frac{f(x + h) - f(x)}{h} \tag{5.4}$$
-> 对应到图 5.3 中，割线将变为切线。
 
-$f$ 的导数时刻指向 $f$ 提升最快的方向。
+对正实数 $h > 0$，函数 $f$ 在 $x$ 处的导数由下面的极限定义：
+$$
+\frac{\mathrm{d}f}{\mathrm{d}x} := \lim_{h \to 0} \frac{f(x + h) - f(x)}{h} \tag{5.4}
+$$
+
+对应到图 5.3 中，割线将变为切线。$f$ 的导数时刻指向 $f$ 提升最快的方向。
+
+
 
 
 
@@ -15,13 +20,32 @@ $f$ 的导数时刻指向 $f$ 提升最快的方向。
 所谓 Taylor 级数是将函数 $f$ 表示成的那个无限项求和式，其中的所有的项都和 $f$ 在点 $x_{0}$ 处的导数相关。
 
 > **定义 5.3（Taylor 多项式）**
-> 函数 $f: \mathbb{R} \rightarrow \mathbb{R}$ 在点 $x_{0}$ 的 $n$ 阶 Taylor 多项式是 $$T_n(x) := \sum_{k=0}^{n} \frac{f^{(k)}(x_0)}{k!} (x - x_0)^k, \tag{5.7}$$其中 $f^{(k)}(x_{0})$ 是 $f$ 在 $x_{0}$ 处的 $k$ 阶导数（假设其存在），而 $\displaystyle \frac{f^{(k)}(x_{0})}{k!}$ 是多项式各项的系数。
 
-> 对于所有的 $t \in \mathbb{R}$ 我们约定 $t^{0} := 1$
+函数 $f: \mathbb{R} \rightarrow \mathbb{R}$ 在点 $x_{0}$ 的 $n$ 阶 Taylor 多项式是 
+$$
+T_n(x) := \sum_{k=0}^{n} \frac{f^{(k)}(x_0)}{k!} (x - x_0)^k, \tag{5.7}
+$$
 
+其中 
+- $f^{(k)}(x_{0})$ 是 $f$ 在 $x_{0}$ 处的 $k$ 阶导数（假设其存在）
+- 而 $\displaystyle \frac{f^{(k)}(x_{0})}{k!}$ 是多项式各项的系数。
+
+对于所有的 $t \in \mathbb{R}$ 我们约定 $t^{0} := 1$
+
+----
 
 > **定义 5.4（Taylor 级数）**
-> 对于光滑函数 $f \in \mathcal{C}^{\infty}, f: \mathbb{R}\rightarrow \mathbb{R}$，它在点 $x_{0}$ 处的 Taylor 级数定义为$$T_\infty(x) = \sum_{k=0}^{\infty} \frac{f^{(k)}(x_0)}{k!} (x - x_0)^k. \tag{5.8}$$若 $x_{0} = 0$，我们得到了一个 Taylor 级数的特殊情况 —— Maclaurin 级数。如果 $f(x) = T_{\infty}(x)$，则我们称 $f$ 是**解析函数**。
+
+对于光滑函数 $f \in \mathcal{C}^{\infty}, f: \mathbb{R}\rightarrow \mathbb{R}$，它在点 $x_{0}$ 处的 Taylor 级数定义为
+$$
+T_\infty(x) = \sum_{k=0}^{\infty} \frac{f^{(k)}(x_0)}{k!} (x - x_0)^k. \tag{5.8}
+$$
+
+- 若 $x_{0} = 0$，我们得到了一个 Taylor 级数的特殊情况 —— Maclaurin 级数。
+- 如果 $f(x) = T_{\infty}(x)$，则我们称 $f$ 是**解析函数**。
+
+---
+
 
 > 注：一般而言，某个不一定为多项式函数的 $n$ 阶 Taylor 多项式是这个函数的近似，它在 $x_{0}$ 的邻域中与 $f$ 接近。事实上，对于阶数为 $k \leqslant n$ 的多项式函数 $f$，$n$ 阶 Taylor 多项式就是这个多项式函数本身，因为对所有的 $i > k$，多项式函数 $f$ 的 $i$ 阶导数 $f^{(i)}$ 均为零。
 
@@ -38,6 +62,7 @@ $$
 \text{链式法则:}\quad & \Big( g\big[ f(x) \big] \Big)' = (g \circ f)'(x) = g'\big[f(x)\big]f'(x)\tag{5.32}
 \end{align}
 $$
+
 其中 $g \circ f$ 表示函数的复合：$x \mapsto f(x) \mapsto g\big[f(x)\big]$。
 
 
@@ -47,7 +72,21 @@ $$
 ## 5.2 偏导数和梯度
 
 > **定义 5.5（偏导数）**
-> 给定 $n$ 元函数 $f: \mathbb{R}^{n} \rightarrow \mathbb{R}$，$\boldsymbol{x} \mapsto f(\boldsymbol{x}), \boldsymbol{x} \in \mathbb{R}^{n}$，它的各偏导数为$$\begin{align}\frac{ \partial f }{ \partial x_{1} } &= \lim_{ h \to 0 } \frac{f(x_{1}+h, x_{2}, \dots, x_{n}) - f(\boldsymbol{x})}{h}\\&\,\,\, \vdots\\\frac{ \partial f }{ \partial x_{n} } &= \lim_{ h \to 0 } \frac{f(x_{1}, \dots, x_{n-1}, x_{n}+h) - f(\boldsymbol{x})}{h}\end{align}\tag{5.39}$$ 然后将各偏导数组合为向量，就得到了梯度向量$$\nabla_{x}f = \text{grad} f = \frac{\mathrm{d}f}{\mathrm{d}\boldsymbol{x}} = \left[ \frac{ \partial f(\boldsymbol{x}) }{ \partial x_{1} }, \frac{ \partial f(\boldsymbol{x}) }{ \partial x_{2} }, \dots, \frac{ \partial f(\boldsymbol{x}) }{ \partial x_{n} } \right] \in \mathbb{R}^{1 \times n}, \tag{5.40}$$其中 $n$ 是变元数，$1$ 是 $f$ 像集（陪域）的维数。我们在此定义列向量 $\boldsymbol{x} = [x_{1}, \dots, x_{n}]^{\top} \in \mathbb{R}^{n}$。行向量 $(5.40)$ 称为 $f$ 的**梯度**或者**Jacobi 矩阵**，是 5.1 节中的导数的推广。
+
+给定 $n$ 元函数 $f: \mathbb{R}^{n} \rightarrow \mathbb{R}$，$\boldsymbol{x} \mapsto f(\boldsymbol{x}), \boldsymbol{x} \in \mathbb{R}^{n}$，它的各偏导数为
+$$
+\begin{align}\frac{ \partial f }{ \partial x_{1} } &= \lim_{ h \to 0 } \frac{f(x_{1}+h, x_{2}, \dots, x_{n}) - f(\boldsymbol{x})}{h}\\&\,\,\, \vdots\\\frac{ \partial f }{ \partial x_{n} } &= \lim_{ h \to 0 } \frac{f(x_{1}, \dots, x_{n-1}, x_{n}+h) - f(\boldsymbol{x})}{h}\end{align}\tag{5.39}
+$$
+
+然后将各偏导数组合为向量，就得到了梯度向量
+$$
+\nabla_{x}f = \text{grad} f = \frac{\mathrm{d}f}{\mathrm{d}\boldsymbol{x}} = \left[ \frac{ \partial f(\boldsymbol{x}) }{ \partial x_{1} }, \frac{ \partial f(\boldsymbol{x}) }{ \partial x_{2} }, \dots, \frac{ \partial f(\boldsymbol{x}) }{ \partial x_{n} } \right] \in \mathbb{R}^{1 \times n}, \tag{5.40}
+$$
+
+其中 
+- $n$ 是变元数，$1$ 是 $f$ 像集（陪域）的维数。
+- 我们在此定义列向量 $\boldsymbol{x} = [x_{1}, \dots, x_{n}]^{\top} \in \mathbb{R}^{n}$。
+- 行向量 $(5.40)$ 称为 $f$ 的**梯度**或者**Jacobi 矩阵**，是 5.1 节中的导数的推广。
 
 
 
@@ -62,6 +101,8 @@ $$
 \text{Chain rule:}~&~\frac{ \partial  }{ \partial \boldsymbol{ x }  } (g \circ f)(x) = \frac{ \partial  }{ \partial \boldsymbol{ x }  } g\big[ f(\boldsymbol{ x } ) \big] = \frac{ \partial g }{ \partial f } \frac{ \partial f }{ \partial \boldsymbol{ x }  } \tag{5.48} 
 \end{align}
 $$
+
+其中 $g \circ f$ 表示函数的复合：$x \mapsto f(x) \mapsto g\big[f(x)\big]$。
 
 
 
@@ -79,8 +120,31 @@ $$
 $$
 其中 $\mathrm{d}$ 表示梯度，而 $\partial$ 表示偏导数。
 
+对应的计算图如下，从输入 $t$ 出发，经过中间变量 $x_1, x_2$ 到达输出 $f$，每条边上标注了对应的偏导数：
+
+```mermaid
+graph LR
+    t((t))
+    x1((x₁))
+    x2((x₂))
+    f((f))
+
+    t -- "∂x₁/∂t" --> x1
+    t -- "∂x₂/∂t" --> x2
+    x1 -- "∂f/∂x₁" --> f
+    x2 -- "∂f/∂x₂" --> f
+```
+
+沿两条路径将偏导数相乘再求和，即得到全导数：$\displaystyle\frac{\mathrm{d}f}{\mathrm{d}t} = \frac{\partial f}{\partial x_1}\frac{\partial x_1}{\partial t} + \frac{\partial f}{\partial x_2}\frac{\partial x_2}{\partial t}$
+
 > **示例 5.8**
-> 考虑函数 $f(x_{1}, x_{2}) = x_{1}^{2} + 2x_{2}$，其中 $x_{1} = \sin t$，$x_{2} = \cos t$，则 $$\begin{align}\frac{\mathrm{d}f}{\mathrm{d}t} &= \frac{ \partial f }{ \partial x_{1} } \frac{ \partial x_{1} }{ \partial t } + \frac{ \partial f }{ \partial x_{2} } \frac{ \partial x_{2} }{ \partial t } \tag{5.50a}\\&= 2\sin t \frac{ \partial \sin t }{ \partial t } + 2 \frac{ \partial \cos t }{ \partial t } \tag{5.50b}\\&= 2\sin t \cos t - 2\sin t = 2\sin t(\cos t-1)\tag{5.50c}\end{align}$$就是 $f$ 关于 $t$ 的梯度。
+> 考虑函数 $f(x_{1}, x_{2}) = x_{1}^{2} + 2x_{2}$，其中 $x_{1} = \sin t$，$x_{2} = \cos t$，则 
+> 
+> $$
+> \begin{align}\frac{\mathrm{d}f}{\mathrm{d}t} &= \frac{ \partial f }{ \partial x_{1} } \frac{ \partial x_{1} }{ \partial t } + \frac{ \partial f }{ \partial x_{2} } \frac{ \partial x_{2} }{ \partial t } \tag{5.50a}\\&= 2\sin t \frac{ \partial \sin t }{ \partial t } + 2 \frac{ \partial \cos t }{ \partial t } \tag{5.50b}\\&= 2\sin t \cos t - 2\sin t = 2\sin t(\cos t-1)\tag{5.50c}\end{align}
+> $$
+> 
+> 就是 $f$ 关于 $t$ 的梯度。
 
 如果 $f(x_{1}, x_{2})$ 是 $x_{1}$ 和 $x_{2}$ 的函数，而 $x_{1}(s, t)$ 和 $x_{2}(s,t)$ 又分别为 $s$ 和 $t$ 的函数，那么根据链式法则会得到下面的结果：
 
@@ -88,8 +152,40 @@ $$
 \begin{align}
 \frac{ \partial f }{ \partial {\color{orange} s }  } &= \frac{ \partial f }{ \partial {\color{blue} x_{1} }  } \frac{ \partial {\color{blue} x_{1} }  }{ \partial {\color{orange} s }  }  + \frac{ \partial f }{ \partial {\color{blue} x_{2} }  } \frac{ \partial {\color{blue} x_{2} }  }{ \partial {\color{orange} s }  } \tag{5.51}\\
 \frac{ \partial f }{ \partial {\color{orange} t }  } &= \frac{ \partial f }{ \partial {\color{blue} x_{1} }  } \frac{ \partial {\color{blue} x_{1} }  }{ \partial {\color{orange} t }  }  + \frac{ \partial f }{ \partial {\color{blue} x_{2} }  } \frac{ \partial {\color{blue} x_{2} }  }{ \partial {\color{orange} t }  } \tag{5.52}
-\end{align} 
+\end{align}
 $$
+
+对应的计算图如下，从输入 $s, t$ 出发，经过中间变量 $x_1, x_2$ 到达输出 $f$：
+
+```mermaid
+graph LR
+    %% 定义输入节点
+    S((s))
+    T((t))
+    
+    %% 定义中间变量节点
+    X1(x1)
+    X2(x2)
+    
+    %% 定义最终输出节点
+    F{f}
+
+    %% 建立连接 (自左向右)
+    S --> X1
+    S --> X2
+    T --> X1
+    T --> X2
+    X1 --> F
+    X2 --> F
+
+    %% 样式美化
+    style F fill:#f9f,stroke:#333,stroke-width:2px
+    style S fill:#e1f5fe,stroke:#01579b
+    style T fill:#e1f5fe,stroke:#01579b
+```
+
+例如计算 $\partial f / \partial s$ 时，从 $s$ 到 $f$ 有两条路径：$s \to x_1 \to f$ 和 $s \to x_2 \to f$，将每条路径上的偏导数相乘再求和，即得到公式 $(5.51)$；对 $t$ 同理可得 $(5.52)$。
+
 而函数的梯度为
 $$
 \frac{\mathrm{d}f}{\mathrm{d}(s,t)} = \frac{ \partial f }{ \partial \boldsymbol{ x }  } \frac{ \partial \boldsymbol{ x }  }{ \partial (s,t) } = \underbrace{ \begin{bmatrix}
@@ -102,6 +198,7 @@ $$
 \displaystyle {\color{orange} \frac{ \partial x_{2} }{ \partial t }  } \\
 \end{bmatrix} }_{ \displaystyle =\frac{ \partial \boldsymbol{x} }{ \partial (s,t) }  }.\tag{5.53}
 $$
+
 以上的写法 $(5.53)$ 当且仅当梯度被写为行向量时才是正确的，否则我们需要对结果进行转置，以保证矩阵的维度对应。在梯度为向量或矩阵时这样看来似乎比较显然，但当之后讨论中涉及的梯度变成 **张量（tensor）** 时对其进行转置就不那么容易了。
 
 
@@ -411,17 +508,6 @@ $$
 
 
 ## 5.8 线性近似和多元 Taylor 级数
-
-
-
-
-
-
-
-
-
-
-
 
 
 
