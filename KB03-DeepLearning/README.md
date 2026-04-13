@@ -33,7 +33,7 @@
 
 参考：
 - [李宏毅深度学习教程LeeDL-Tutorial（苹果书）](https://github.com/datawhalechina/leedl-tutorial?tab=readme-ov-file)
-- [动手学深度学习（D2L）））](https://courses.d2l.ai/zh-v2/)
+- [动手学深度学习(D2L)](https://courses.d2l.ai/zh-v2/)
 
 
 
