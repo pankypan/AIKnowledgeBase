@@ -494,7 +494,27 @@ $$
 
 ## 5.7 高阶导数
 
+在优化问题中（如 Newton 法），我们常需要用到二阶甚至更高阶导数。对于函数 $f:\mathbb{R}^{2}\to \mathbb{R}$（变量 $x, y$），高阶偏导数的记号如下：
 
+- $\displaystyle \frac{\partial^{2}f}{\partial x^{2}}$：$f$ 关于 $x$ 的二阶偏导
+- $\displaystyle \frac{\partial^{n}f}{\partial x^{n}}$：$f$ 关于 $x$ 的 $n$ 阶偏导
+- $\displaystyle \frac{\partial^{2}f}{\partial y\,\partial x} = \frac{\partial}{\partial y}\!\left(\frac{\partial f}{\partial x}\right)$：先对 $x$、再对 $y$ 求偏导
+
+**Schwarz 定理（混合偏导数的对称性）**：若 $f(x,y)$ 是二阶连续可微函数，则
+$$
+\frac{\partial^{2}f}{\partial x\,\partial y} = \frac{\partial^{2}f}{\partial y\,\partial x},
+$$
+即二阶混合偏导与求导顺序无关。
+
+> **定义（Hessian 矩阵）**
+> 
+> 所有二阶偏导数构成的矩阵称为 **Hessian 矩阵**。对于 $f:\mathbb{R}^{2}\to \mathbb{R}$：
+> $$\boldsymbol{H} = \begin{bmatrix}\displaystyle \frac{\partial^{2}f}{\partial x^{2}} & \displaystyle \frac{\partial^{2}f}{\partial x\,\partial y} \\[0.8em] \displaystyle \frac{\partial^{2}f}{\partial y\,\partial x} & \displaystyle \frac{\partial^{2}f}{\partial y^{2}} \end{bmatrix} \tag{5.147}$$
+> 一般地，对于 $f:\mathbb{R}^{n}\to \mathbb{R}$，Hessian 是 $n\times n$ 矩阵，也记作 $\nabla_{\boldsymbol{x}}^{2}f(\boldsymbol{x})$。
+
+由 Schwarz 定理可知，二阶连续可微函数的 Hessian 矩阵是**对称矩阵**。Hessian 矩阵衡量了函数在某点附近的**局部曲率**。
+
+> 注：若 $f:\mathbb{R}^{n}\to \mathbb{R}^{m}$ 是向量场，则其 Hessian 是一个 $(m\times n\times n)$ 的张量。
 
 
 
@@ -509,7 +529,64 @@ $$
 
 ## 5.8 线性近似和多元 Taylor 级数
 
+### 梯度作为局部线性近似
 
+函数 $f$ 的梯度可用于构造其在 $\boldsymbol{x}_{0}$ 附近的**线性近似**：
+$$
+f(\boldsymbol{x}) \approx f(\boldsymbol{x}_{0}) + (\nabla_{\boldsymbol{x}}f)(\boldsymbol{x}_{0})(\boldsymbol{x} - \boldsymbol{x}_{0}) \tag{5.148}
+$$
+这本质上是多元 Taylor 级数只保留前两项的特例。近似精度在 $\boldsymbol{x}_{0}$ 附近较高，随距离增大而下降。
+
+### 多元 Taylor 级数
+
+对光滑函数 $f: \mathbb{R}^{D}\to \mathbb{R}$，令 $\boldsymbol{\delta} := \boldsymbol{x} - \boldsymbol{x}_{0}$，其 Taylor 级数为
+$$
+f(\boldsymbol{x}) = \sum_{k=0}^{\infty} \frac{D_{\boldsymbol{x}}^{k}f(\boldsymbol{x}_{0})}{k!}\,\boldsymbol{\delta}^{k}, \tag{5.151}
+$$
+其中 $D_{\boldsymbol{x}}^{k}f(\boldsymbol{x}_{0})$ 是 $f$ 在 $\boldsymbol{x}_{0}$ 处的第 $k$ 阶全导数。截取前 $n+1$ 项即得 $n$ 阶 Taylor 多项式：
+$$
+T_{n}(\boldsymbol{x}) = \sum_{k=0}^{n} \frac{D_{\boldsymbol{x}}^{k}f(\boldsymbol{x}_{0})}{k!}\,\boldsymbol{\delta}^{k} \tag{5.152}
+$$
+
+**张量记号**：当 $\boldsymbol{x}\in \mathbb{R}^{D}$ 且 $k > 1$ 时，$D_{\boldsymbol{x}}^{k}f$ 和 $\boldsymbol{\delta}^{k}$ 均为 $k$ 阶张量。$\boldsymbol{\delta}^{k}\in \mathbb{R}^{\overbrace{D\times \cdots \times D}^{k}}$ 由向量 $\boldsymbol{\delta}$ 的 $k$ 重外积（$\otimes$）得到，例如
+$$
+\begin{align}
+\boldsymbol{\delta}^{2} := \boldsymbol{\delta}\otimes\boldsymbol{\delta} = \boldsymbol{\delta}\boldsymbol{\delta}^{\top}, &\quad \boldsymbol{\delta}^{2}[i,j] = \delta[i]\,\delta[j]; \tag{5.153}\\
+\boldsymbol{\delta}^{3} := \boldsymbol{\delta}\otimes\boldsymbol{\delta}\otimes\boldsymbol{\delta}, &\quad \boldsymbol{\delta}^{3}[i,j,k] = \delta[i]\,\delta[j]\,\delta[k]. \tag{5.154}
+\end{align}
+$$
+第 $k$ 阶项的完整展开为
+$$
+D_{\boldsymbol{x}}^{k}f(\boldsymbol{x}_{0})\,\boldsymbol{\delta}^{k} = \sum_{i_{1}=1}^{D}\cdots\sum_{i_{k}=1}^{D} D_{\boldsymbol{x}}^{k}f(\boldsymbol{x}_{0})[i_{1},\dots,i_{k}]\,\delta[i_{1}]\cdots\delta[i_{k}] \tag{5.155}
+$$
+
+### 前几阶展开项
+
+设 $\boldsymbol{\delta} = \boldsymbol{x} - \boldsymbol{x}_{0}$，$\boldsymbol{H}(\boldsymbol{x}_{0})$ 为 $f$ 在 $\boldsymbol{x}_{0}$ 的 Hessian 矩阵：
+
+| 阶 $k$ | $D_{\boldsymbol{x}}^{k}f(\boldsymbol{x}_{0})\,\boldsymbol{\delta}^{k}$ |
+| --- | --- |
+| 0 | $f(\boldsymbol{x}_{0})$ |
+| 1 | $\nabla_{\boldsymbol{x}}f(\boldsymbol{x}_{0})\,\boldsymbol{\delta}$ |
+| 2 | $\boldsymbol{\delta}^{\top}\boldsymbol{H}(\boldsymbol{x}_{0})\,\boldsymbol{\delta}$ |
+| 3 | $\displaystyle\sum_{i,j,k} D_{\boldsymbol{x}}^{3}f(\boldsymbol{x}_{0})[i,j,k]\,\delta[i]\,\delta[j]\,\delta[k]$ |
+
+因此 Taylor 级数的前几项为
+$$
+f(\boldsymbol{x}) = f(\boldsymbol{x}_{0}) + \nabla_{\boldsymbol{x}}f(\boldsymbol{x}_{0})\,\boldsymbol{\delta} + \frac{1}{2!}\boldsymbol{\delta}^{\top}\boldsymbol{H}(\boldsymbol{x}_{0})\,\boldsymbol{\delta} + \frac{1}{3!}D_{\boldsymbol{x}}^{3}f(\boldsymbol{x}_{0})\,\boldsymbol{\delta}^{3} + \cdots \tag{5.180a}
+$$
+
+> **示例 5.15（二元多项式的 Taylor 展开）**
+> 
+> 对 $f(x,y) = x^{2}+2xy+y^{3}$ 在 $(1,2)$ 处展开。由于 $f$ 是三阶多项式，Taylor 展开只有 $k=0,1,2,3$ 四项非零。依次计算：
+> - $k=0$：$f(1,2) = 13$
+> - $k=1$：$\nabla f(1,2) = [6,\;14]$，贡献 $6(x-1)+14(y-2)$
+> - $k=2$：$\boldsymbol{H}(1,2) = \begin{bmatrix}2 & 2\\2 & 12\end{bmatrix}$，贡献 $(x-1)^{2}+2(x-1)(y-2)+6(y-2)^{2}$
+> - $k=3$：唯一非零三阶导 $\displaystyle\frac{\partial^{3}f}{\partial y^{3}}=6$，贡献 $(y-2)^{3}$
+> 
+> 最终
+> $$f(x,y) = 13 + 6(x{-}1)+14(y{-}2) + (x{-}1)^{2}+2(x{-}1)(y{-}2)+6(y{-}2)^{2} + (y{-}2)^{3} \tag{5.180c}$$
+> 该结果与原多项式完全一致，因为原函数本身就是三阶多项式。
 
 
 

@@ -63,7 +63,6 @@ $$
 
 ### 2.2.1 矩阵的加法与乘法
 **矩阵加法**：两个矩阵 $\boldsymbol{A}\in\R^{m\times n}$， $\boldsymbol{B}\in\R^{m\times n}$ 的和被定义为两个矩阵按对应元素的相加得到的新矩阵，即：
-
 $$
 \boldsymbol{A}+\boldsymbol{B}=
 \left [
@@ -75,9 +74,7 @@ $$
 \right ]\in\R^{m\times n} \tag{2.12}
 $$
 
-
 **矩阵乘法**：对于矩阵$\boldsymbol{A}\in\R^{m\times n}$，$\boldsymbol{B}\in\R^{n\times k}$的乘积矩阵$\boldsymbol{C}=\boldsymbol{A}\boldsymbol{B}\in\R^{m\times k}$(注意这里矩阵的大小)中元素的计算法则为：
-
 $$
 c_{ij}=\sum_{l=1}^n a_{il}b_{lj},(i=1,2,\dots,m, j=1,2,\dots,k) \tag{2.13}
 $$
@@ -355,7 +352,7 @@ $$
 
 从这个形式中，我们可以直接读出 $Ax = 0$ 的解，通过取 $\tilde{A}$ 中对角线上包含-1的列：
 
-$$ 
+$$
 \left\{ x \in \mathbb{R}^5 : x = \lambda_1 \begin{bmatrix} 3 \\ -1 \\ 0 \\ 0 \\ 0 \end{bmatrix} + \lambda_2 \begin{bmatrix} 3 \\ 0 \\ 9 \\ -4 \\ -1 \end{bmatrix}, \lambda_1, \lambda_2 \in \mathbb{R} \right\}, \tag{2.55} 
 $$
 
@@ -502,9 +499,9 @@ $$
 > - 主元列表示的向量是线性无关的。
 > - 非主元列可以表示为它们左边主元列的线性组合。例如，行阶梯形式
 >   \
-> $$\begin{bmatrix}1 & 3 & 0  \\  0 & 0 & 2  \\  \end{bmatrix} \tag{2.66}$$
-> 表明第一列和第三列是主元列。第二列是非主元列，因为它等于第一列的三倍。
-> 所有列向量线性无关当且仅当所有列都是主元列。如果至少有一个非主元列，则列向量（因此对应的向量）是线性相关的。
+>   $$\begin{bmatrix}1 & 3 & 0  \\  0 & 0 & 2  \\  \end{bmatrix} \tag{2.66}$$
+>   表明第一列和第三列是主元列。第二列是非主元列，因为它等于第一列的三倍。
+>   所有列向量线性无关当且仅当所有列都是主元列。如果至少有一个非主元列，则列向量（因此对应的向量）是线性相关的。
 
 
 > **注释**：考虑一个线性空间 $ V $ 和其中的 $ k $ 个线性无关的向量 $ \boldsymbol{b}_1, \dots, \boldsymbol{b}_k $，以及 $ m $ 个线性组合：$$\boldsymbol{x}_1 = \sum_{i=1}^k \lambda_{i1} \boldsymbol{b}_i, \quad \dots, \quad \boldsymbol{x}_m = \sum_{i=1}^k \lambda_{im} \boldsymbol{b}_i.\tag{2.70} $$定义 $ B = [\boldsymbol{b}_1, \dots, \boldsymbol{b}_k] $ 为矩阵，其列向量是线性无关的向量 $ \boldsymbol{b}_1, \dots, \boldsymbol{b}_k $，则可以更紧凑地表示为：$$\boldsymbol{x}_j = B \boldsymbol{\lambda}_j, \quad \boldsymbol{\lambda}_j = \begin{bmatrix}\lambda_{1j} \\ \vdots \\ \lambda_{kj}\end{bmatrix}, \quad j = 1, \dots, m,\tag{2.71} $$为了测试 $ \boldsymbol{x}_1, \dots, \boldsymbol{x}_m $ 是否线性无关，我们采用一般方法，测试 $ \sum_{j=1}^m \psi_j \boldsymbol{x}_j = \boldsymbol{0} $。根据(2.71)，我们有：$$\sum_{j=1}^m \psi_j \boldsymbol{x}_j = \sum_{j=1}^m \psi_j B \boldsymbol{\lambda}_j = B \sum_{j=1}^m \psi_j \boldsymbol{\lambda}_j.\tag{2.72} $$这意味着 $\{\boldsymbol{x}_1, \dots, \boldsymbol{x}_m\}$ 线性无关当且仅当列向量 $\{\boldsymbol{\lambda}_1, \dots, \boldsymbol{\lambda}_m\}$ 线性无关。
@@ -630,15 +627,85 @@ $$
 
 ### 2.7.2 基变换
 
+当我们改变 $V$ 和 $W$ 中的基时，线性映射 $\Phi: V \to W$ 的变换矩阵也会随之变化。设 $V$ 有两个有序基 $B, \tilde{B}$，$W$ 有两个有序基 $C, \tilde{C}$，$A_\Phi$ 是 $\Phi$ 关于 $B, C$ 的变换矩阵，则关于 $\tilde{B}, \tilde{C}$ 的变换矩阵为
+
+$$
+\tilde{A}_\Phi = T^{-1} A_\Phi S \quad \tag{2.105}
+$$
+
+其中 $S \in \mathbb{R}^{n \times n}$ 是恒等映射 $\text{id}_V$ 的变换矩阵（将 $\tilde{B}$ 坐标映射到 $B$ 坐标），$T \in \mathbb{R}^{m \times m}$ 是恒等映射 $\text{id}_W$ 的变换矩阵（将 $\tilde{C}$ 坐标映射到 $C$ 坐标）。直观理解执行顺序（从右到左）：$\boldsymbol{x} \mapsto S\boldsymbol{x} \mapsto A_\Phi(S\boldsymbol{x}) \mapsto T^{-1}(A_\Phi(S\boldsymbol{x}))$，即先把新基坐标转到旧基，再做线性映射，最后转到新的目标基。
+
+> **注释**：通过基变换，可以让变换矩阵具有特别简单的形式（如对角矩阵），从而简化计算。例如，标准基下的矩阵 $A = \begin{bmatrix}2 & 1 \\ 1 & 2\end{bmatrix}$ 在基 $B = \left(\begin{bmatrix}1\\1\end{bmatrix}, \begin{bmatrix}1\\-1\end{bmatrix}\right)$ 下变为对角矩阵 $\tilde{A} = \begin{bmatrix}3 & 0 \\ 0 & 1\end{bmatrix}$。这正是第4章特征值分解的核心思想。♦
+
+**定义2.21（等价）**：如果存在可逆矩阵 $S \in \mathbb{R}^{n \times n}$ 和 $T \in \mathbb{R}^{m \times m}$，使得 $\tilde{A} = T^{-1} A S$，则称 $A, \tilde{A} \in \mathbb{R}^{m \times n}$ 是**等价**的。
+
+**定义2.22（相似）**：如果存在可逆矩阵 $S \in \mathbb{R}^{n \times n}$，使得 $\tilde{A} = S^{-1} A S$，则称 $A, \tilde{A} \in \mathbb{R}^{n \times n}$ 是**相似**的。相似是等价的特殊情形（$V = W$ 且两端用同一个基变换），相似矩阵总是等价的，反之则不然。
+
 
 
 ### 2.7.3 像和核
 
+**定义2.23（像和核）**：对于线性映射 $\Phi: V \to W$，定义
+
+- **核（kernel / null space）**：$\text{ker}(\Phi) := \{\boldsymbol{v} \in V : \Phi(\boldsymbol{v}) = \boldsymbol{0}_W\}$
+- **像（image / range）**：$\text{Im}(\Phi) := \{\boldsymbol{w} \in W : \exists \boldsymbol{v} \in V, \Phi(\boldsymbol{v}) = \boldsymbol{w}\}$
+
+核是 $V$ 中所有被映射到零向量的元素集合；像是 $W$ 中所有可被 $\Phi$ "到达"的元素集合。两者都是子空间：$\text{ker}(\Phi) \subseteq V$，$\text{Im}(\Phi) \subseteq W$。
+
+**与矩阵的联系**：对于 $A \in \mathbb{R}^{m \times n}$ 和 $\Phi: \boldsymbol{x} \mapsto A\boldsymbol{x}$：
+- $\text{Im}(\Phi) = \text{span}[\boldsymbol{a}_1, \dots, \boldsymbol{a}_n]$（$A$ 的**列空间**），是 $\mathbb{R}^m$ 的子空间
+- $\text{ker}(\Phi)$ 是齐次方程 $A\boldsymbol{x} = \boldsymbol{0}$ 的解空间（**零空间**），是 $\mathbb{R}^n$ 的子空间
+- $\text{rk}(A) = \dim(\text{Im}(\Phi))$
+
+**秩-零度定理**（线性映射基本定理）：
+
+$$
+\dim(\text{ker}(\Phi)) + \dim(\text{Im}(\Phi)) = \dim(V) \quad \tag{2.129}
+$$
+
+由此可得：若 $\dim(\text{Im}(\Phi)) < \dim(V)$，则核非平凡（含非零向量），齐次方程组有无穷多解。若 $\dim(V) = \dim(W)$，则单射 $\Leftrightarrow$ 满射 $\Leftrightarrow$ 双射。
 
 
 
 
 ## 2.8 仿射空间
 
+> **注释**：机器学习文献中常混用"线性"与"仿射"。严格来说，仿射空间/映射不一定过原点，因此不同于线性空间/映射。♦
 
+### 2.8.1 仿射子空间
 
+**定义2.25（仿射子空间）**：设 $V$ 是线性空间，$\boldsymbol{x}_0 \in V$，$U \subseteq V$ 是子空间，则
+
+$$
+L = \boldsymbol{x}_0 + U := \{\boldsymbol{x}_0 + \boldsymbol{u} : \boldsymbol{u} \in U\} \subseteq V \quad \tag{2.130}
+$$
+
+称为 $V$ 的**仿射子空间**（线性流形）。$U$ 称为**方向空间**，$\boldsymbol{x}_0$ 称为**支点**。若 $\boldsymbol{x}_0 \notin U$，则仿射子空间不包含零向量，因而不是线性子空间。
+
+仿射子空间可通过参数方程描述：若 $(\boldsymbol{b}_1, \dots, \boldsymbol{b}_k)$ 是 $U$ 的基，则 $L$ 中的元素为
+
+$$
+\boldsymbol{x} = \boldsymbol{x}_0 + \lambda_1 \boldsymbol{b}_1 + \cdots + \lambda_k \boldsymbol{b}_k, \quad \lambda_i \in \mathbb{R} \quad \tag{2.131}
+$$
+
+常见的仿射子空间：
+- **线**（$k=1$）：$\boldsymbol{y} = \boldsymbol{x}_0 + \lambda \boldsymbol{b}_1$
+- **平面**（$k=2$）：$\boldsymbol{y} = \boldsymbol{x}_0 + \lambda_1 \boldsymbol{b}_1 + \lambda_2 \boldsymbol{b}_2$
+- **超平面**（$k=n-1$）：在 $\mathbb{R}^n$ 中由 $n-1$ 个线性无关方向向量张成
+
+> **注释**：非齐次线性方程组 $A\boldsymbol{\lambda} = \boldsymbol{x}$ 的解集要么为空，要么是 $\mathbb{R}^n$ 中维数为 $n - \text{rk}(A)$ 的仿射子空间。齐次方程 $A\boldsymbol{x} = \boldsymbol{0}$ 的解空间是支点为原点的特殊情形。♦
+
+### 2.8.2 仿射映射
+
+**定义2.26（仿射映射）**：对线性空间 $V, W$，线性映射 $\Phi: V \to W$ 以及 $\boldsymbol{a} \in W$，映射
+
+$$
+\phi: V \to W, \quad \boldsymbol{x} \mapsto \boldsymbol{a} + \Phi(\boldsymbol{x}) \quad \tag{2.132}
+$$
+
+称为**仿射映射**，其中 $\boldsymbol{a}$ 为**位移向量**。仿射映射 = 线性映射 + 平移。
+
+仿射映射的关键性质：
+- 每个仿射映射可唯一分解为线性映射 $\Phi$ 与平移 $\tau$ 的复合：$\phi = \tau \circ \Phi$
+- 两个仿射映射的复合仍是仿射映射
+- 仿射映射保持几何结构（维数和平行性）

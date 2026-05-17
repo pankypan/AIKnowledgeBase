@@ -504,6 +504,105 @@ $$\cos\theta=\frac{\langle X,Y\rangle}{\|X\|\:\|Y\|}=\frac{\mathrm{Cov}[X,Y]}{\s
 
 ## 6.5 高斯分布
 
+高斯分布（正态分布）是连续型分布中最重要的分布，广泛应用于线性回归（第9章）、高斯过程、变分推理、卡尔曼滤波等领域。其核心优势在于**边际分布和条件分布具有闭式表达式**，且完全由均值和协方差确定。
+
+**单变量高斯分布**的密度函数：
+
+$$
+p(x\mid\mu,\sigma^2)=\frac{1}{\sqrt{2\pi\sigma^2}}\exp\left(-\frac{(x-\mu)^2}{2\sigma^2}\right) \tag{6.62}
+$$
+
+**多元高斯分布**由均值向量 $\boldsymbol{\mu}$ 和协方差矩阵 $\boldsymbol{\Sigma}$ 完全描述：
+
+$$
+p(\boldsymbol{x}\mid\boldsymbol{\mu},\boldsymbol{\Sigma})=(2\pi)^{-\frac{D}{2}}|\boldsymbol{\Sigma}|^{-\frac{1}{2}}\exp\left(-\frac{1}{2}(\boldsymbol{x}-\boldsymbol{\mu})^{\top}\boldsymbol{\Sigma}^{-1}(\boldsymbol{x}-\boldsymbol{\mu})\right) \tag{6.63}
+$$
+
+记作 $X\sim\mathcal{N}(\boldsymbol{\mu},\boldsymbol{\Sigma})$。当 $\mu=0$，$\Sigma=I$ 时称为**标准正态分布**。
+
+
+### 6.5.1 边际分布和条件分布仍然是高斯分布
+
+设联合高斯分布为
+
+$$
+p(\boldsymbol{x},\boldsymbol{y})=\mathcal{N}\left(\begin{bmatrix}\boldsymbol{\mu}_x\\\boldsymbol{\mu}_y\end{bmatrix},\:\begin{bmatrix}\boldsymbol{\Sigma}_{xx}&\boldsymbol{\Sigma}_{xy}\\\boldsymbol{\Sigma}_{yx}&\boldsymbol{\Sigma}_{yy}\end{bmatrix}\right) \tag{6.64}
+$$
+
+**条件分布** $p(\boldsymbol{x}\mid\boldsymbol{y})$ 也是高斯分布：
+
+$$
+p(\boldsymbol{x}\mid\boldsymbol{y})=\mathcal{N}(\boldsymbol{\mu}_{x\mid y},\:\boldsymbol{\Sigma}_{x\mid y}) \tag{6.65}
+$$
+
+$$
+\boldsymbol{\mu}_{x\mid y}=\boldsymbol{\mu}_{x}+\boldsymbol{\Sigma}_{xy}\boldsymbol{\Sigma}_{yy}^{-1}(\boldsymbol{y}-\boldsymbol{\mu}_{y}) \tag{6.66}
+$$
+
+$$
+\boldsymbol{\Sigma}_{x\mid y}=\boldsymbol{\Sigma}_{xx}-\boldsymbol{\Sigma}_{xy}\boldsymbol{\Sigma}_{yy}^{-1}\boldsymbol{\Sigma}_{yx} \tag{6.67}
+$$
+
+**备注**：条件高斯在卡尔曼滤波、高斯过程、潜在线性高斯模型（如PPCA）中广泛出现。
+
+**边际分布** $p(\boldsymbol{x})$ 同样是高斯分布：
+
+$$
+p(\boldsymbol{x})=\int p(\boldsymbol{x},\boldsymbol{y})\mathrm{d}\boldsymbol{y}=\mathcal{N}\big(\boldsymbol{x}\mid\boldsymbol{\mu}_{x},\:\boldsymbol{\Sigma}_{xx}\big) \tag{6.68}
+$$
+
+直观上，边际化就是忽略（积分掉）不关心的维度，保留的分布参数就是对应的均值子向量和协方差子矩阵。
+
+
+### 6.5.2 高斯密度的乘积
+
+两个高斯密度的乘积 $\mathcal{N}(\boldsymbol{x}\mid\boldsymbol{a},\boldsymbol{A})\mathcal{N}(\boldsymbol{x}\mid\boldsymbol{b},\boldsymbol{B})$ 是一个缩放的高斯 $c\,\mathcal{N}(\boldsymbol{x}\mid\boldsymbol{c},\boldsymbol{C})$，其中：
+
+$$
+\boldsymbol{C}=(\boldsymbol{A}^{-1}+\boldsymbol{B}^{-1})^{-1} \tag{6.74}
+$$
+
+$$
+\boldsymbol{c}=\boldsymbol{C}(\boldsymbol{A}^{-1}\boldsymbol{a}+\boldsymbol{B}^{-1}\boldsymbol{b}) \tag{6.75}
+$$
+
+缩放常数 $c=\mathcal{N}(\boldsymbol{a}\mid\boldsymbol{b},\boldsymbol{A}+\boldsymbol{B})$。这一结果在贝叶斯线性回归中计算后验时至关重要（似然 × 先验 = 后验）。
+
+
+### 6.5.3 和与线性变换
+
+若 $X,Y$ 是独立高斯随机变量，则其和仍是高斯分布：
+
+$$
+p(\boldsymbol{x}+\boldsymbol{y})=\mathcal{N}(\boldsymbol{\mu}_{x}+\boldsymbol{\mu}_{y},\:\boldsymbol{\Sigma}_{x}+\boldsymbol{\Sigma}_{y}) \tag{6.78}
+$$
+
+**高斯随机变量的线性/仿射变换仍为高斯分布**。设 $X\sim\mathcal{N}(\boldsymbol{\mu},\boldsymbol{\Sigma})$，$\boldsymbol{y}=\boldsymbol{A}\boldsymbol{x}$，则：
+
+$$
+p(\boldsymbol{y})=\mathcal{N}(\boldsymbol{y}\mid\boldsymbol{A}\boldsymbol{\mu},\:\boldsymbol{A}\boldsymbol{\Sigma}\boldsymbol{A}^{\top}) \tag{6.88}
+$$
+
+**备注**：高斯密度的加权和（混合模型）与高斯随机变量的加权和是不同的概念。对于混合密度 $p(x)=\alpha p_1(x)+(1-\alpha)p_2(x)$，其均值和方差为：
+
+$$
+\mathbb{E}[x]=\alpha\mu_1+(1-\alpha)\mu_2 \tag{6.81}
+$$
+
+$$
+\mathrm{V}[x]=\underbrace{[\alpha\sigma_1^2+(1-\alpha)\sigma_2^2]}_{\text{条件方差的期望}}+\underbrace{[\alpha\mu_1^2+(1-\alpha)\mu_2^2]-[\alpha\mu_1+(1-\alpha)\mu_2]^2}_{\text{条件均值的方差}} \tag{6.82}
+$$
+
+这是**全方差定律**的一个实例：$\mathrm{V}_X[x]=\mathbb{E}_Y[\mathrm{V}_X[x\mid y]]+\mathrm{V}_Y[\mathbb{E}_X[x\mid y]]$。
+
+
+### 6.5.4 从多元高斯分布中采样
+
+从 $\mathcal{N}(\boldsymbol{\mu},\boldsymbol{\Sigma})$ 中采样的步骤：
+
+1. 从标准正态 $\mathcal{N}(\boldsymbol{0},\boldsymbol{I})$ 中采样得到 $\boldsymbol{x}$
+2. 对协方差矩阵做 Cholesky 分解 $\boldsymbol{\Sigma}=\boldsymbol{A}\boldsymbol{A}^{\top}$
+3. 计算 $\boldsymbol{y}=\boldsymbol{A}\boldsymbol{x}+\boldsymbol{\mu}$，则 $\boldsymbol{y}\sim\mathcal{N}(\boldsymbol{\mu},\boldsymbol{\Sigma})$
 
 
 
@@ -513,6 +612,94 @@ $$\cos\theta=\frac{\langle X,Y\rangle}{\|X\|\:\|Y\|}=\frac{\mathrm{Cov}[X,Y]}{\s
 
 ## 6.6 共轭性与指数族分布
 
+本节介绍在机器学习中操作概率分布时期望具备的三个性质：(1) 概率运算的**封闭性**（如贝叶斯推断后类型不变）；(2) 参数数量不随数据增多而膨胀；(3) 参数估计表现良好。指数族分布在保持一般性的同时满足这些性质。
+
+### 三个基础分布
+
+**伯努利分布** Ber$(\mu)$：单个二元随机变量 $x\in\{0,1\}$ 的分布
+
+$$
+p(x\mid\mu)=\mu^{x}(1-\mu)^{1-x},\quad \mathbb{E}[x]=\mu,\quad \mathbb{V}[x]=\mu(1-\mu) \tag{6.92}
+$$
+
+**二项分布** Bin$(N,\mu)$：$N$ 次伯努利试验中 $x=1$ 出现 $m$ 次的概率
+
+$$
+p(m\mid N,\mu)=\binom{N}{m}\mu^m(1-\mu)^{N-m},\quad \mathbb{E}[m]=N\mu,\quad \mathbb{V}[m]=N\mu(1-\mu) \tag{6.95}
+$$
+
+**贝塔分布** Beta$(\alpha,\beta)$：定义在 $\mu\in[0,1]$ 上的连续分布，常用于表示概率参数的先验
+
+$$
+p(\mu\mid\alpha,\beta)=\frac{\Gamma(\alpha+\beta)}{\Gamma(\alpha)\Gamma(\beta)}\mu^{\alpha-1}(1-\mu)^{\beta-1} \tag{6.98}
+$$
+
+$$
+\mathbb{E}[\mu]=\frac{\alpha}{\alpha+\beta},\quad \mathbb{V}[\mu]=\frac{\alpha\beta}{(\alpha+\beta)^{2}(\alpha+\beta+1)} \tag{6.99}
+$$
+
+其中 $\Gamma(t)=\int_{0}^{\infty}x^{t-1}e^{-x}\mathrm{d}x$。直观上，$\alpha$ 将质量推向 1，$\beta$ 推向 0。特别地：$\alpha=\beta=1$ 时为均匀分布。
+
+
+### 6.6.1 共轭性
+
+**定义 6.13（共轭先验）**：如果后验与先验具有相同的分布形式，则该先验是似然函数的**共轭先验**。
+
+共轭性的好处在于可以通过**代数更新参数**来计算后验，无需数值积分。
+
+> **贝塔-二项共轭**：对 $x\sim\mathrm{Bin}(N,\mu)$，若先验 $\mu\sim\mathrm{Beta}(\alpha,\beta)$，观察到 $x=h$ 次正面后：
+>
+> $$p(\mu\mid x=h)\propto\mu^{h+\alpha-1}(1-\mu)^{(N-h)+\beta-1}\propto\mathrm{Beta}(h+\alpha,\:N-h+\beta) \tag{6.104}$$
+>
+> 后验仍是贝塔分布——$\alpha$ 加上正面次数，$\beta$ 加上反面次数。
+
+> **贝塔-伯努利共轭**类似：观察 $x\in\{0,1\}$ 后，后验为 $\mathrm{Beta}(\alpha+x,\:\beta+(1-x))$。
+
+**备注**：常见共轭对包括：高斯似然→高斯先验（均值）、高斯似然→逆伽马/逆Wishart先验（方差/协方差）、多项式似然→狄利克雷先验。
+
+
+### 6.6.2 充分统计量
+
+直觉：**充分统计量**是从数据中能提取的、关于分布参数的全部信息。
+
+**定理 6.14（Fisher-Neyman）**：统计量 $\phi(\boldsymbol{x})$ 是参数 $\theta$ 的充分统计量，当且仅当
+
+$$
+p(\boldsymbol{x}\mid\theta)=h(\boldsymbol{x})\,g_\theta(\phi(\boldsymbol{x})) \tag{6.106}
+$$
+
+其中 $h(\boldsymbol{x})$ 与 $\theta$ 无关，$g_\theta$ 仅通过 $\phi(\boldsymbol{x})$ 依赖于 $\theta$。
+
+例如，对于高斯分布，样本均值和样本方差就是充分统计量。关键问题：哪类分布具有**有限维**充分统计量？答案是指数族分布。
+
+
+### 6.6.3 指数族分布
+
+**指数族分布**是参数化为如下形式的概率分布族：
+
+$$
+p(\boldsymbol{x}\mid\boldsymbol{\theta})=h(\boldsymbol{x})\exp\left(\boldsymbol{\theta}^{\top}\boldsymbol{\phi}(\boldsymbol{x})-A(\boldsymbol{\theta})\right) \tag{6.107}
+$$
+
+其中 $\boldsymbol{\phi}(\boldsymbol{x})$ 是充分统计量向量，$\boldsymbol{\theta}$ 是**自然参数**，$A(\boldsymbol{\theta})$ 是对数配分函数（归一化常数的对数）。忽略 $h(\boldsymbol{x})$ 和 $A(\boldsymbol{\theta})$ 后，核心结构为 $p(\boldsymbol{x}\mid\boldsymbol{\theta})\propto\exp(\boldsymbol{\theta}^{\top}\boldsymbol{\phi}(\boldsymbol{x}))$。
+
+> **高斯分布属于指数族**：令 $\phi(x)=[x,\:x^2]^{\top}$，自然参数 $\boldsymbol{\theta}=[\mu/\sigma^2,\:-1/(2\sigma^2)]^{\top}$，则
+>
+> $$p(x\mid\boldsymbol{\theta})\propto\exp\left(\frac{\mu x}{\sigma^2}-\frac{x^2}{2\sigma^2}\right)\propto\exp\left(-\frac{(x-\mu)^2}{2\sigma^2}\right) \tag{6.111}$$
+
+> **伯努利分布属于指数族**：自然参数 $\theta=\log\frac{\mu}{1-\mu}$，充分统计量 $\phi(x)=x$，反解得
+>
+> $$\mu=\frac{1}{1+\exp(-\theta)} \tag{6.118}$$
+>
+> 这就是 **sigmoid/logistic 函数**，将实数映射到 $(0,1)$，广泛用于逻辑回归和神经网络。
+
+**指数族的共轭先验**具有统一形式：
+
+$$
+p(\boldsymbol{\theta}\mid\boldsymbol{\gamma})=h_c(\boldsymbol{\theta})\exp\left(\left\langle\begin{bmatrix}\gamma_1\\\gamma_2\end{bmatrix},\begin{bmatrix}\boldsymbol{\theta}\\-A(\boldsymbol{\theta})\end{bmatrix}\right\rangle-A_c(\boldsymbol{\gamma})\right) \tag{6.120}
+$$
+
+**备注**：指数族的核心优势——(1) 有限维充分统计量；(2) 共轭先验易于构造且也属于指数族；(3) 对数似然函数是凹函数，利于优化。
 
 
 
@@ -520,6 +707,66 @@ $$\cos\theta=\frac{\langle X,Y\rangle}{\|X\|\:\|Y\|}=\frac{\mathrm{Cov}[X,Y]}{\s
 
 
 ## 6.7 变量变换/逆变换
+
+核心问题：已知随机变量 $X$ 的分布，经过变换 $Y=U(X)$ 后，$Y$ 的分布是什么？
+
+对于**离散随机变量**，若 $U$ 可逆，则直接代入：
+
+$$
+P(Y=y)=P(X=U^{-1}(y)) \tag{6.125}
+$$
+
+对于**连续随机变量**，需要额外处理体积变化因子。下面介绍两种方法。
+
+
+### 6.7.1 分布函数技术
+
+基于累积分布函数（CDF）的定义进行推导：
+
+1. 求 $Y$ 的 CDF：$F_Y(y)=P(Y\leqslant y)$
+2. 对 CDF 求导得 PDF：$f(y)=\frac{\mathrm{d}}{\mathrm{d}y}F_Y(y)$
+
+**定理 6.15（概率积分变换）**：设 $X$ 是连续随机变量，CDF 为严格单调的 $F_X(x)$，则
+
+$$
+Y:=F_X(X) \tag{6.132}
+$$
+
+服从均匀分布。该定理是从均匀分布采样转换为任意分布采样的理论基础：先从均匀分布采样，再通过逆 CDF 变换即可得到目标分布的样本。
+
+
+### 6.7.2 变量替换
+
+对于单变量，设 $Y=U(X)$，$U$ 可逆，则 $Y$ 的 PDF 为：
+
+$$
+f(y)=f_x(U^{-1}(y))\cdot\left|\frac{\mathrm{d}}{\mathrm{d}y}U^{-1}(y)\right| \tag{6.143}
+$$
+
+其中 $\left|\frac{\mathrm{d}}{\mathrm{d}y}U^{-1}(y)\right|$ 衡量变换 $U$ 引起的**单位体积变化量**。绝对值保证了无论 $U$ 是递增还是递减，结果一致。
+
+**备注**：与离散情况 (6.125) 相比，连续情况多了微分因子——因为连续变量取特定值的概率为零，必须考虑密度在变换下的"拉伸/压缩"效应。
+
+**定理 6.16（多元变量替换）**：设 $\boldsymbol{y}=U(\boldsymbol{x})$ 为可微且可逆的向量值函数，则 $Y$ 的 PDF 为
+
+$$
+f(\boldsymbol{y})=f_{\boldsymbol{x}}(U^{-1}(\boldsymbol{y}))\cdot\left|\det\left(\frac{\partial}{\partial\boldsymbol{y}}U^{-1}(\boldsymbol{y})\right)\right| \tag{6.144}
+$$
+
+多元情况下，单变量的导数绝对值被替换为 **Jacobian 矩阵行列式的绝对值**，它度量了变换在局部的体积缩放因子。
+
+> **线性变换的例子**：设 $X\sim\mathcal{N}(\boldsymbol{0},\boldsymbol{I})$，$\boldsymbol{y}=\boldsymbol{A}\boldsymbol{x}$，则逆变换为 $\boldsymbol{x}=\boldsymbol{A}^{-1}\boldsymbol{y}$，Jacobian 行列式为 $|\det(\boldsymbol{A})|^{-1}$，变换后的密度为
+>
+> $$f(\boldsymbol{y})=\frac{1}{(2\pi)^{D/2}|\det(\boldsymbol{A})|}\exp\left(-\frac{1}{2}\boldsymbol{y}^{\top}\boldsymbol{A}^{-\top}\boldsymbol{A}^{-1}\boldsymbol{y}\right)$$
+>
+> 这正是协方差为 $\boldsymbol{\Sigma}=\boldsymbol{A}\boldsymbol{A}^{\top}$ 的多元高斯分布。
+
+
+
+
+
+
+
 
 
 
