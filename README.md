@@ -1,5 +1,48 @@
 # AI Knowledge Base
 
+> 一份面向 **AI 算法工程师** 的中文学习笔记与知识图谱，沉淀从「数学基础 → 机器学习 → 深度学习 → 大模型 → AI 系统 → Agent」的完整学习路径。
+
+## 项目介绍
+
+本仓库是个人在学习与实践 AI 过程中持续整理的 **结构化知识库**，目标是把零散的论文、书籍、课程、博客与工程经验，归纳为可复用、可检索、可迭代的 Markdown 笔记。
+
+### 适合的读者
+
+- 想系统补齐 **机器学习数学基础** 的初学者
+- 希望沿着「经典 ML → DL → LLM → Agent」路径成长的 **应用型 AI 算法工程师**
+- 需要快速回顾某个算法 / 模型 / 工程概念的 **在岗工程师**（如面试、复盘、查阅）
+- 关注大模型生态（LLM、RAG、Function Calling、MCP、A2A、Agent Skills 等）的 **从业者与研究者**
+
+### 知识体系总览
+
+仓库按主题划分为 6 大模块，每个模块对应一个 `KBxx-*` 目录：
+
+| 模块 | 目录 | 主要内容 |
+| --- | --- | --- |
+| 1. 数学基础 | [`KB01-Mathmatics`](./KB01-Mathmatics) | 3Blue1Brown 线性代数本质、《Mathematics for Machine Learning》全书章节笔记（线代、解析几何、矩阵分解、向量微积分、概率分布、连续优化、线性回归、降维、GMM、SVM 等） |
+| 2. 机器学习 | [`KB02-MachineLearning`](./KB02-MachineLearning) | 李航《统计学习方法》算法笔记、时间序列预测（ARIMA / GBDT / XGBoost / Wavenet / Seq2Seq / Transformer 等）、线性规划与遗传算法等其它算法 |
+| 3. 深度学习 | [`KB03-DeepLearning`](./KB03-DeepLearning) | 深度学习入门笔记、李宏毅《深度学习》课程章节笔记、CNN / RNN 模型族小结 |
+| 4. 大语言模型 | [`KB04-LLM`](./KB04-LLM) | 《Build a LLM from Scratch》、LangChain、LLM 面试题、NVIDIA GPU 与算力租用、多模态数据预处理、应用型 AI 算法工程师修炼路线 |
+| 5. AI 系统 | [`KB05-AISystem`](./KB05-AISystem) | AISystem 体系、CUDA 编程、TensorRT 推理部署等底层与工程化内容 |
+| 6. LLM Agent | [`KB06-LLMAgent`](./KB06-LLMAgent) | Token、Agent 构建模式、Context Engineering、Agent Skills、Function Calling、MCP、A2A 协议、RAG、OpenClaw 架构等 Agent 前沿主题 |
+
+### 内容特点
+
+- **中文优先**：以中文整理为主，关键术语保留英文原文，便于检索与对照
+- **以 Markdown 组织**：纯文本，方便阅读、搜索、二次编辑与版本管理
+- **理论 + 工程并重**：既有数学推导与算法原理，也有 GPU / CUDA / TensorRT / 推理部署等工程实践
+- **持续更新**：标记为 `# Todo` / `# TODO` 的章节为待补充内容，会随学习进度持续完善
+
+### 如何使用
+
+1. 直接从下方目录跳转到感兴趣的章节阅读
+2. 推荐学习路径：`KB01 数学基础` → `KB02 机器学习` → `KB03 深度学习` → `KB04 LLM` → `KB05 AI 系统` → `KB06 LLM Agent`
+3. 已有基础的读者可直接按主题检索，例如想了解 Agent 生态可直接进入 [`KB06-LLMAgent`](./KB06-LLMAgent)
+4. 欢迎通过 Issue / PR 反馈错误、补充资料或交流学习心得
+
+---
+
+
 ## 1 Mathematics for Machine Learning
 
 ### 3Blue1Brown-线性代数的本质
