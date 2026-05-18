@@ -154,13 +154,36 @@
 
 ## 4 LLM
 
-- [Build a Large Language Model (From Scratch)](./KB04-LLM/BuildLLMFromScratch/README.md)
-- [The Ultimate Guide to Fine-Tuning LLMs from Basics to Breakthroughs](https://arxiv.org/html/2408.13296v1#Ch1.S1)
+### 修炼路线, 数据预处理, 算力指南
+
+- [应用型AI算法工程师修炼路线](./KB04-LLM/应用型AI算法工程师修炼路线.md)
+- [Text-Audio-Image 模型数据预处理](./KB04-LLM/Text-Audio-Image模型数据预处理.md)
+- [NVIDIA-GPU-分类与国内算力租用指南](./KB04-LLM/NVIDIA-GPU-分类与国内算力租用指南.md)
+
+
+
+### 从零构建LLM
+
+- [Text Data Processing](./KB04-LLM/BuildLLMFromScratch/ch02_WorkingWithTextData.md)
+- [Coding Attention Mechanisms](./KB04-LLM/BuildLLMFromScratch/ch03_CodingAttentionMechanisms.md)
+- [Implementing a GPT Model](./KB04-LLM/BuildLLMFromScratch/ch04_ImplementingAGPTModel.md)
+- [Pretraining on Unlabeled Data](./KB04-LLM/BuildLLMFromScratch/ch05_PretrainingOnUnlabeledData.md)
+- [Finetuning for Classification](./KB04-LLM/BuildLLMFromScratch/ch06_FinetuningForClassification.md)
+- [Finetuning to Follow Instructions](./KB04-LLM/BuildLLMFromScratch/ch07_FinetuningToFollowInstructions.md)
+
+
+
+
+### LLM 微调指南
+
+- [The Ultimate Guide to Fine-Tuning LLMs from Basics to Breakthroughs](https://arxiv.org/html/2408.13296v1#Ch1.S1) # TODO
+
+
+
+### 其它笔记
 - [LangChain](./KB04-LLM/LangChain.md)
 - [LLM Interview P1](./KB04-LLM/LLMInterview_P1.md)
-- [NVIDIA-GPU-分类与国内算力租用指南](./KB04-LLM/NVIDIA-GPU-分类与国内算力租用指南.md)
-- [Text-Audio-Image 模型数据预处理](./KB04-LLM/Text-Audio-Image模型数据预处理.md)
-- [应用型AI算法工程师修炼路线](./KB04-LLM/应用型AI算法工程师修炼路线.md)
+
 
 
 
