@@ -167,10 +167,28 @@
 
 ## 5 AI System
 
-- [AISystem](./KB05-AISystem)
-- [CUDA编程](./KB05-AISystem)
-- [TensorRT](./KB05-AISystem)
+### AI System 体系
+
+- [AI芯片体系结构-AI计算体系](./KB05-AISystem/AISystem/二(AI芯片体系结构)-1.AI计算体系.md)
+- [AI芯片体系结构-AI芯片基础](./KB05-AISystem/AISystem/二(AI芯片体系结构)-2.AI芯片基础.md)
+- [AI编译原理-传统编译器](./KB05-AISystem/AISystem/三(AI编译原理)-1.传统编译器.md)
+- [AI推理系统-推理系统介绍](./KB05-AISystem/AISystem/四(AI推理系统)-1.推理系统介绍.md)
+
+
+
+
+### Pytorch实用教程
+
 - [Pytorch实用教程](https://github.com/TingsongYu/PyTorch-Tutorial-2nd)  # Pytorch基础、产业应用、推理部署
+
+
+
+### 其它笔记
+
+- [CUDA编程](./KB05-AISystem/CUDA编程/CUDA编程.md)
+- [TensorRT](./KB05-AISystem/TensorRT/TensorRT.md)
+  
+
 
 
 
@@ -178,7 +196,6 @@
 
 ## 6 LLM Agent
 
-- [LLM Agent Notes](./KB06-LLMAgent)
 - [Note001-LLM中的Token详解](./KB06-LLMAgent/Note001-LLM中的Token详解.md)
 - [Note002-Agent的概念、原理与构建模式](./KB06-LLMAgent/Note002-Agent的概念、原理与构建模式.md)
 - [Note003-ContextEngineering详解](./KB06-LLMAgent/Note003-ContextEngineering详解.md)
@@ -188,6 +205,5 @@
 - [Note007-A2A协议概览](./KB06-LLMAgent/Note007-A2A协议概览.md)
 - [Note008-RAG](./KB06-LLMAgent/Note008-RAG.md)
 - [Note009-OpenClaw系统架构详解](./KB06-LLMAgent/Note009-OpenClaw系统架构详解.md)
-
 
 
