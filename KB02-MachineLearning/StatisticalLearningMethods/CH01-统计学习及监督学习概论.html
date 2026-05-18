@@ -1,0 +1,1439 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>第1章 统计学习及监督学习概论 · 学习笔记</title>
+
+<!-- MathJax 配置 -->
+<script>
+  window.MathJax = {
+    tex: {
+      inlineMath: [['$', '$'], ['\\(', '\\)']],
+      displayMath: [['$$', '$$'], ['\\[', '\\]']],
+      processEscapes: true,
+      tags: 'ams'
+    },
+    svg: { fontCache: 'global' },
+    options: {
+      skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+  };
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js" id="MathJax-script" async></script>
+
+<style>
+  :root {
+    --bg: #f6f7fb;
+    --bg-elev: #ffffff;
+    --text: #2b2d42;
+    --text-soft: #5a5f7d;
+    --muted: #8a8fa9;
+    --border: #e6e8f1;
+
+    --primary: #5b6bf5;
+    --primary-dark: #3f4ed1;
+    --primary-soft: #eef0ff;
+
+    --accent: #7c5cff;
+    --accent-soft: #f1ecff;
+
+    --pink: #ff6b9a;
+    --orange: #ff9f43;
+    --green: #22c55e;
+    --teal: #06b6d4;
+    --red: #ef4444;
+    --yellow: #f59e0b;
+
+    --shadow-sm: 0 1px 2px rgba(20, 25, 60, 0.05);
+    --shadow: 0 4px 18px rgba(20, 25, 60, 0.06);
+    --shadow-lg: 0 10px 30px rgba(20, 25, 60, 0.10);
+
+    --radius: 12px;
+    --radius-lg: 16px;
+
+    --code-bg: #f2f3fb;
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+                 "Hiragino Sans GB", "Microsoft YaHei", "Helvetica Neue",
+                 Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.85;
+    font-size: 15.5px;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* 顶部阅读进度条 */
+  #progress {
+    position: fixed; top: 0; left: 0; height: 3px;
+    width: 0; z-index: 200;
+    background: linear-gradient(90deg, var(--primary), var(--accent), var(--pink));
+    transition: width 0.1s linear;
+  }
+
+  /* 顶部 Hero 区 */
+  .hero {
+    position: relative;
+    color: #fff;
+    background: linear-gradient(135deg, #5b6bf5 0%, #7c5cff 55%, #ff6b9a 100%);
+    padding: 56px 24px 80px;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: "";
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(circle at 20% 20%, rgba(255,255,255,0.15), transparent 40%),
+      radial-gradient(circle at 80% 70%, rgba(255,255,255,0.12), transparent 45%);
+    pointer-events: none;
+  }
+  .hero-inner {
+    max-width: 1200px; margin: 0 auto; position: relative;
+  }
+  .hero .eyebrow {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: rgba(255,255,255,0.18);
+    padding: 6px 14px; border-radius: 999px;
+    font-size: 13px; font-weight: 500;
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255,255,255,0.25);
+  }
+  .hero h1 {
+    font-size: 38px; line-height: 1.25;
+    margin: 14px 0 8px; font-weight: 700;
+    letter-spacing: -0.5px;
+  }
+  .hero p.subtitle {
+    font-size: 16px; margin: 0;
+    opacity: 0.92; max-width: 720px;
+  }
+  .hero .meta {
+    display: flex; flex-wrap: wrap; gap: 10px;
+    margin-top: 22px;
+  }
+  .hero .meta .tag {
+    background: rgba(255,255,255,0.16);
+    border: 1px solid rgba(255,255,255,0.28);
+    padding: 5px 12px; border-radius: 999px;
+    font-size: 13px; font-weight: 500;
+  }
+
+  /* 布局 */
+  .layout {
+    max-width: 1200px;
+    margin: -40px auto 64px;
+    padding: 0 24px;
+    display: grid;
+    grid-template-columns: 260px minmax(0, 1fr);
+    gap: 28px;
+    position: relative;
+    transition: grid-template-columns 0.3s ease;
+  }
+  .layout.toc-collapsed {
+    grid-template-columns: 0 minmax(0, 1fr);
+    gap: 0;
+  }
+
+  /* 侧边目录 */
+  aside.toc {
+    position: sticky;
+    top: 16px;
+    align-self: start;
+    max-height: calc(100vh - 32px);
+    overflow-y: auto;
+    background: var(--bg-elev);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow);
+    padding: 20px 16px;
+    border: 1px solid var(--border);
+    transition: opacity 0.25s ease, transform 0.3s ease, visibility 0.3s;
+  }
+  .layout.toc-collapsed aside.toc {
+    opacity: 0;
+    visibility: hidden;
+    transform: translateX(-20px);
+    pointer-events: none;
+  }
+  aside.toc h3 {
+    margin: 0 0 12px;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    color: var(--muted);
+    display: flex; align-items: center; gap: 8px;
+    justify-content: space-between;
+  }
+  aside.toc h3 .title-text {
+    display: flex; align-items: center; gap: 8px;
+  }
+  aside.toc h3 .title-text::before {
+    content: ""; display: inline-block;
+    width: 4px; height: 14px; border-radius: 4px;
+    background: linear-gradient(180deg, var(--primary), var(--accent));
+  }
+  aside.toc .collapse-btn {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    width: 26px; height: 26px;
+    border-radius: 6px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center; justify-content: center;
+    font-size: 14px;
+    transition: all 0.15s;
+  }
+  aside.toc .collapse-btn:hover {
+    background: var(--primary-soft);
+    border-color: var(--primary);
+    color: var(--primary-dark);
+  }
+
+  /* 浮动展开按钮（侧边栏折叠后显示） */
+  #expandToc {
+    position: fixed;
+    left: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 36px; height: 56px;
+    background: var(--bg-elev);
+    border: 1px solid var(--border);
+    border-radius: 0 12px 12px 0;
+    box-shadow: var(--shadow);
+    cursor: pointer;
+    display: none;
+    align-items: center; justify-content: center;
+    color: var(--primary);
+    font-size: 18px;
+    z-index: 90;
+    transition: background 0.15s, transform 0.2s, left 0.2s;
+  }
+  #expandToc:hover {
+    background: var(--primary-soft);
+    transform: translateY(-50%) translateX(2px);
+  }
+  #expandToc.show {
+    display: flex;
+  }
+  aside.toc ul {
+    list-style: none; padding: 0; margin: 0;
+  }
+  aside.toc li > a {
+    display: block;
+    padding: 6px 10px;
+    color: var(--text-soft);
+    text-decoration: none;
+    border-radius: 8px;
+    font-size: 13.5px;
+    border-left: 2px solid transparent;
+    transition: background 0.15s, color 0.15s, border-color 0.15s;
+  }
+  aside.toc li.lvl-2 > a { font-weight: 600; color: var(--text); }
+  aside.toc li.lvl-3 > a { padding-left: 22px; font-size: 13px; }
+  aside.toc li.lvl-4 > a { padding-left: 34px; font-size: 12.5px; color: var(--muted); }
+  aside.toc li > a:hover {
+    background: var(--primary-soft);
+    color: var(--primary-dark);
+  }
+  aside.toc li > a.active {
+    background: var(--primary-soft);
+    color: var(--primary-dark);
+    border-left-color: var(--primary);
+    font-weight: 600;
+  }
+
+  /* 滚动条美化 */
+  aside.toc::-webkit-scrollbar { width: 6px; }
+  aside.toc::-webkit-scrollbar-thumb { background: #d6d9ea; border-radius: 3px; }
+
+  /* 主内容 */
+  main.content {
+    background: var(--bg-elev);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow);
+    padding: 36px 44px 60px;
+    border: 1px solid var(--border);
+    min-width: 0;
+  }
+
+  /* 标题 */
+  main.content h2 {
+    margin: 48px 0 18px;
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--text);
+    padding-bottom: 10px;
+    border-bottom: 2px solid var(--border);
+    position: relative;
+    scroll-margin-top: 16px;
+  }
+  main.content h2::before {
+    content: "";
+    position: absolute; left: 0; bottom: -2px;
+    width: 80px; height: 2px;
+    background: linear-gradient(90deg, var(--primary), var(--accent));
+    border-radius: 2px;
+  }
+  main.content h2:first-child { margin-top: 0; }
+
+  main.content h3 {
+    margin: 34px 0 12px;
+    font-size: 21px; font-weight: 700;
+    color: var(--primary-dark);
+    display: flex; align-items: center; gap: 10px;
+    scroll-margin-top: 16px;
+  }
+  main.content h3::before {
+    content: ""; flex: 0 0 auto;
+    width: 6px; height: 22px; border-radius: 3px;
+    background: linear-gradient(180deg, var(--primary), var(--accent));
+  }
+
+  main.content h4 {
+    margin: 26px 0 10px;
+    font-size: 17px; font-weight: 700;
+    color: var(--accent);
+    scroll-margin-top: 16px;
+  }
+  main.content h4::before {
+    content: "▸ ";
+    color: var(--accent);
+    font-weight: 700;
+  }
+
+  /* 段落、链接、列表 */
+  main.content p { margin: 12px 0; }
+  main.content a { color: var(--primary); text-decoration: none; }
+  main.content a:hover { text-decoration: underline; }
+  main.content ul, main.content ol { padding-left: 1.5em; }
+  main.content li { margin: 5px 0; }
+  main.content li::marker { color: var(--primary); }
+
+  /* 强调 */
+  main.content strong {
+    color: var(--primary-dark);
+    font-weight: 700;
+    background: linear-gradient(180deg, transparent 60%, rgba(91,107,245,0.15) 60%);
+    padding: 0 2px;
+  }
+  main.content em { color: var(--accent); font-style: normal; }
+
+  /* 代码 */
+  code {
+    font-family: "JetBrains Mono", "Fira Code", Consolas, monospace;
+    background: var(--code-bg);
+    color: #d6336c;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 13.5px;
+  }
+
+  /* 引用块 -> "学习步骤"框 */
+  blockquote.steps {
+    background: linear-gradient(135deg, #f1ecff 0%, #eef0ff 100%);
+    border-left: 5px solid var(--primary);
+    margin: 20px 0;
+    padding: 18px 22px;
+    border-radius: 10px;
+    box-shadow: var(--shadow-sm);
+  }
+  blockquote.steps .title {
+    font-weight: 700; color: var(--primary-dark);
+    display: flex; align-items: center; gap: 8px;
+    margin-bottom: 8px;
+  }
+  blockquote.steps .title::before {
+    content: "📋";
+  }
+  blockquote.steps ol { margin: 8px 0 0; padding-left: 1.5em; }
+
+  /* 重点卡片 */
+  .card {
+    margin: 18px 0;
+    padding: 16px 20px;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    background: var(--bg-elev);
+    box-shadow: var(--shadow-sm);
+    border-left-width: 5px;
+  }
+  .card .card-title {
+    font-weight: 700;
+    display: flex; align-items: center; gap: 8px;
+    margin-bottom: 6px;
+    font-size: 15px;
+  }
+  .card-definition { border-left-color: var(--primary); background: linear-gradient(180deg, #fafbff, #fff); }
+  .card-definition .card-title { color: var(--primary-dark); }
+  .card-definition .card-title::before { content: "📘"; }
+
+  .card-keypoint { border-left-color: var(--accent); background: linear-gradient(180deg, #faf8ff, #fff); }
+  .card-keypoint .card-title { color: var(--accent); }
+  .card-keypoint .card-title::before { content: "💡"; }
+
+  .card-theorem { border-left-color: var(--teal); background: linear-gradient(180deg, #f0fbfd, #fff); }
+  .card-theorem .card-title { color: #047892; }
+  .card-theorem .card-title::before { content: "📐"; }
+
+  .card-warning { border-left-color: var(--yellow); background: linear-gradient(180deg, #fffaef, #fff); }
+  .card-warning .card-title { color: #b45309; }
+  .card-warning .card-title::before { content: "⚠️"; }
+
+  .card-note { border-left-color: var(--green); background: linear-gradient(180deg, #f0fdf4, #fff); }
+  .card-note .card-title { color: #15803d; }
+  .card-note .card-title::before { content: "📝"; }
+
+  .card-compare { border-left-color: var(--pink); background: linear-gradient(180deg, #fff5fa, #fff); }
+  .card-compare .card-title { color: #be185d; }
+  .card-compare .card-title::before { content: "⚖️"; }
+
+  /* 三要素卡片组 */
+  .triplet {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+    margin: 18px 0;
+  }
+  .triplet .item {
+    padding: 18px;
+    border-radius: 14px;
+    color: #fff;
+    box-shadow: var(--shadow);
+    position: relative;
+    overflow: hidden;
+  }
+  .triplet .item.model    { background: linear-gradient(135deg, #5b6bf5, #3f4ed1); }
+  .triplet .item.strategy { background: linear-gradient(135deg, #7c5cff, #5b3fd1); }
+  .triplet .item.algo     { background: linear-gradient(135deg, #ff6b9a, #d14d7a); }
+  .triplet .item h5 {
+    margin: 0 0 6px; font-size: 18px;
+    letter-spacing: 0.3px;
+  }
+  .triplet .item p { margin: 0; font-size: 13.5px; opacity: 0.95; }
+  .triplet .item .num {
+    position: absolute; right: 10px; top: 6px;
+    font-size: 38px; font-weight: 800; opacity: 0.18;
+    line-height: 1;
+  }
+
+  /* 模型分类双列对比 */
+  .model-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin: 16px 0;
+  }
+  .model-grid .col {
+    padding: 14px 18px;
+    border-radius: 12px;
+    background: var(--bg-elev);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-sm);
+  }
+  .model-grid .col h6 {
+    margin: 0 0 8px; font-size: 14px;
+    color: var(--primary-dark);
+    font-weight: 700;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .model-grid .col h6 .dot {
+    display: inline-block; width: 8px; height: 8px; border-radius: 50%;
+    background: var(--primary);
+  }
+  .model-grid .col.b h6 .dot { background: var(--pink); }
+  .badge-list { display: flex; flex-wrap: wrap; gap: 6px; }
+  .badge {
+    font-size: 12.5px;
+    background: var(--primary-soft);
+    color: var(--primary-dark);
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-weight: 500;
+  }
+  .model-grid .col.b .badge { background: #ffeaf2; color: #be185d; }
+
+  /* 图片 */
+  .figure {
+    text-align: center;
+    margin: 22px 0;
+  }
+  .figure img {
+    max-width: 100%;
+    border-radius: 12px;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border);
+    background: #fff;
+    padding: 8px;
+  }
+  .figure .caption {
+    margin-top: 8px;
+    color: var(--muted);
+    font-size: 13.5px;
+  }
+
+  /* 公式块 */
+  mjx-container[display="true"] {
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: 6px 0;
+  }
+  .eq-wrap {
+    background: linear-gradient(180deg, #fbfbff, #f7f8fe);
+    border: 1px dashed #d3d8f0;
+    border-radius: 10px;
+    padding: 6px 14px;
+    margin: 10px 0;
+    overflow-x: auto;
+  }
+
+  /* 分隔线 */
+  hr.sep {
+    border: 0;
+    height: 1px;
+    margin: 22px 0;
+    background: linear-gradient(90deg, transparent, var(--border), transparent);
+  }
+
+  /* 章节锚点圆 */
+  .anchor-num {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 30px; height: 30px;
+    background: linear-gradient(135deg, var(--primary), var(--accent));
+    color: #fff;
+    border-radius: 8px;
+    font-size: 14px; font-weight: 700;
+    margin-right: 10px;
+    box-shadow: var(--shadow-sm);
+  }
+
+  /* 回到顶部 */
+  #toTop {
+    position: fixed; right: 24px; bottom: 24px;
+    width: 44px; height: 44px;
+    border-radius: 50%; border: none;
+    background: linear-gradient(135deg, var(--primary), var(--accent));
+    color: #fff; font-size: 18px;
+    cursor: pointer;
+    box-shadow: var(--shadow-lg);
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.25s;
+    z-index: 100;
+  }
+  #toTop.show { opacity: 1; pointer-events: auto; }
+  #toTop:hover { transform: translateY(-2px); }
+
+  /* 移动端 */
+  @media (max-width: 960px) {
+    .layout { grid-template-columns: 1fr; }
+    aside.toc { position: static; max-height: none; }
+    main.content { padding: 24px 20px 40px; }
+    .triplet { grid-template-columns: 1fr; }
+    .model-grid { grid-template-columns: 1fr; }
+    .hero h1 { font-size: 28px; }
+  }
+
+  /* 章节内子节顶部装饰 */
+  .section-intro {
+    background: linear-gradient(135deg, #eef0ff 0%, #f1ecff 100%);
+    border-radius: 12px;
+    padding: 14px 18px;
+    margin: 10px 0 18px;
+    color: var(--text-soft);
+    border-left: 4px solid var(--primary);
+  }
+
+  /* 损失函数列表卡 */
+  .loss-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 12px;
+    margin: 14px 0;
+  }
+  .loss-item {
+    background: var(--bg-elev);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 16px;
+    box-shadow: var(--shadow-sm);
+    border-top: 4px solid var(--primary);
+  }
+  .loss-item .name {
+    font-weight: 700;
+    color: var(--primary-dark);
+    margin-bottom: 4px;
+    font-size: 14.5px;
+  }
+  .loss-item:nth-child(2) { border-top-color: var(--accent); }
+  .loss-item:nth-child(3) { border-top-color: var(--pink); }
+  .loss-item:nth-child(4) { border-top-color: var(--teal); }
+  .loss-item:nth-child(2) .name { color: var(--accent); }
+  .loss-item:nth-child(3) .name { color: #be185d; }
+  .loss-item:nth-child(4) .name { color: #047892; }
+</style>
+</head>
+
+<body>
+
+<div id="progress"></div>
+
+<!-- 顶部 Hero -->
+<header class="hero">
+  <div class="hero-inner">
+    <span class="eyebrow">📚 《统计学习方法》（李航 · 第2版）学习笔记</span>
+    <h1>第 1 章 · 统计学习及监督学习概论</h1>
+    <p class="subtitle">系统性梳理统计学习的基本概念、分类体系、三要素框架，以及模型评估、泛化能力与监督学习应用，为后续章节构建完整认知基础。</p>
+    <div class="meta">
+      <span class="tag">🎯 监督 · 无监督 · 强化学习</span>
+      <span class="tag">🧮 模型 · 策略 · 算法</span>
+      <span class="tag">📊 经验风险 · 结构风险</span>
+      <span class="tag">🔍 泛化能力 · 模型选择</span>
+    </div>
+  </div>
+</header>
+
+<!-- 内容布局 -->
+<div class="layout">
+
+  <!-- 目录 -->
+  <aside class="toc">
+    <h3>
+      <span class="title-text">本章目录</span>
+      <button class="collapse-btn" id="collapseToc" title="折叠目录" aria-label="折叠目录">«</button>
+    </h3>
+    <ul>
+      <li class="lvl-2"><a href="#sec-1-1">1.1 统计学习</a></li>
+      <li class="lvl-2"><a href="#sec-1-2">1.2 统计学习的分类</a></li>
+      <li class="lvl-3"><a href="#sec-1-2-1">1.2.1 基本分类</a></li>
+      <li class="lvl-4"><a href="#sec-supervised">监督学习</a></li>
+      <li class="lvl-4"><a href="#sec-unsupervised">无监督学习</a></li>
+      <li class="lvl-4"><a href="#sec-reinforcement">强化学习</a></li>
+      <li class="lvl-4"><a href="#sec-semi">半监督与主动学习</a></li>
+      <li class="lvl-3"><a href="#sec-1-2-2">1.2.2 按模型分类</a></li>
+      <li class="lvl-3"><a href="#sec-1-2-3">1.2.3 按算法分类</a></li>
+      <li class="lvl-3"><a href="#sec-1-2-4">1.2.4 按技巧分类</a></li>
+      <li class="lvl-2"><a href="#sec-1-3">1.3 方法三要素</a></li>
+      <li class="lvl-3"><a href="#sec-1-3-1">1.3.1 模型</a></li>
+      <li class="lvl-3"><a href="#sec-1-3-2">1.3.2 策略</a></li>
+      <li class="lvl-3"><a href="#sec-1-3-3">1.3.3 算法</a></li>
+      <li class="lvl-2"><a href="#sec-1-4">1.4 模型评估与选择</a></li>
+      <li class="lvl-2"><a href="#sec-1-5">1.5 正则化与交叉验证</a></li>
+      <li class="lvl-2"><a href="#sec-1-6">1.6 泛化能力</a></li>
+      <li class="lvl-2"><a href="#sec-1-7">1.7 生成模型与判别模型</a></li>
+      <li class="lvl-2"><a href="#sec-1-8">1.8 监督学习应用</a></li>
+    </ul>
+  </aside>
+
+  <main class="content">
+
+    <!-- 1.1 -->
+    <h2 id="sec-1-1"><span class="anchor-num">1.1</span>统计学习</h2>
+
+    <div class="card card-definition">
+      <div class="card-title">什么是统计学习？</div>
+      统计学习（statistical learning）是关于计算机基于数据构建概率统计模型，并运用模型对数据进行预测与分析的一门学科，也称为<strong>统计机器学习（statistical machine learning）</strong>。
+      <p style="margin-top:10px;color:var(--text-soft);font-size:14px;">
+        🧠 <em>赫尔伯特·西蒙（Herbert A. Simon）</em>对"学习"的定义：<br>
+        <span style="font-style:italic">"如果一个系统能够通过执行某个过程改进它的性能，这就是学习。"</span>
+      </p>
+    </div>
+
+    <div class="model-grid">
+      <div class="col">
+        <h6><span class="dot"></span>研究对象与假设</h6>
+        <ul>
+          <li>研究对象：<strong>数据（data）</strong></li>
+          <li>基本假设：<strong>同类数据具有一定的统计规律性</strong></li>
+          <li>处理方法：用<strong>概率统计方法</strong>处理</li>
+        </ul>
+      </div>
+      <div class="col b">
+        <h6><span class="dot"></span>目的与方法</h6>
+        <ul>
+          <li>目的：对未知新数据进行<strong>预测与分析</strong></li>
+          <li>方法：<strong>基于数据构建概率统计模型</strong></li>
+          <li>组成：监督学习、无监督学习、强化学习</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="card card-keypoint">
+      <div class="card-title">统计学习方法的三要素</div>
+      <strong>方法 = 模型（model）+ 策略（strategy）+ 算法（algorithm）</strong>
+    </div>
+
+    <blockquote class="steps">
+      <div class="title">实现统计学习方法的步骤</div>
+      <ol>
+        <li>得到一个有限的<strong>训练数据集合</strong></li>
+        <li>确定包含所有可能模型的假设空间，即<strong>学习模型的集合</strong></li>
+        <li>确定模型选择的准则，即<strong>学习的策略</strong></li>
+        <li>实现求解最优模型的算法，即<strong>学习的算法</strong></li>
+        <li>通过学习方法选择最优模型</li>
+        <li>利用学习的最优模型对新数据进行预测或分析</li>
+      </ol>
+    </blockquote>
+
+    <!-- 1.2 -->
+    <h2 id="sec-1-2"><span class="anchor-num">1.2</span>统计学习的分类</h2>
+
+    <h3 id="sec-1-2-1">1.2.1 基本分类</h3>
+
+    <h4 id="sec-supervised">监督学习（Supervised Learning）</h4>
+    <div class="card card-definition">
+      <div class="card-title">监督学习的定义</div>
+      监督学习是指从<strong>标注数据</strong>中学习预测模型的机器学习问题。标注数据表示输入输出的对应关系，预测模型对给定的输入产生相应的输出。
+    </div>
+
+    <p><strong>（1）输入空间、特征空间和输出空间</strong></p>
+    <p>输入与输出所有可能取值的集合分别称为<strong>输入空间（input space）</strong>与<strong>输出空间（output space）</strong>。每个具体的输入是一个<strong>实例（instance）</strong>，通常由<strong>特征向量（feature vector）</strong>表示。</p>
+
+    <div class="eq-wrap">
+      $$ x=\left(x^{(1)}, x^{(2)}, \cdots, x^{(i)}, \cdots, x^{(n)}\right)^{\mathrm{T}} $$
+    </div>
+    <p>其中 $x^{(i)}$ 表示 $x$ 的第 $i$ 个特征；$x_i$ 表示多个输入变量中的第 $i$ 个变量：</p>
+    <div class="eq-wrap">
+      $$ x_{i}=\left(x_{i}^{(1)}, x_{i}^{(2)}, \cdots, x_{i}^{(n)}\right)^{\mathrm{T}} $$
+    </div>
+
+    <p>训练集通常表示为：</p>
+    <div class="eq-wrap">
+      $$ T=\left\{\left(x_{1}, y_{1}\right),\left(x_{2}, y_{2}\right), \cdots,\left(x_{N}, y_{N}\right)\right\} $$
+    </div>
+
+    <div class="card card-keypoint">
+      <div class="card-title">三类预测问题</div>
+      <ul style="margin:6px 0 0;">
+        <li><strong>回归问题</strong>：输入与输出变量均为<strong>连续变量</strong></li>
+        <li><strong>分类问题</strong>：输出变量为<strong>有限个离散变量</strong></li>
+        <li><strong>标注问题</strong>：输入与输出变量均为<strong>变量序列</strong></li>
+      </ul>
+    </div>
+
+    <hr class="sep">
+
+    <p><strong>（2）联合概率分布</strong></p>
+    <div class="card card-note">
+      <div class="card-title">基本假设</div>
+      监督学习假设输入与输出的随机变量 $X$ 和 $Y$ 遵循联合概率分布 $P(X,Y)$。数据被看作是依联合概率分布 $P(X,Y)$ <strong>独立同分布</strong>产生的。
+    </div>
+
+    <p><strong>（3）假设空间</strong></p>
+    <div class="card card-definition">
+      <div class="card-title">假设空间（Hypothesis Space）</div>
+      监督学习的目的在于学习一个由输入到输出的映射，这一映射由模型来表示。模型属于由输入空间到输出空间的映射的集合，这个集合就是<strong>假设空间</strong>。
+      <p style="margin:8px 0 0;">监督学习的模型可以是：</p>
+      <ul style="margin-top:4px;">
+        <li><strong>概率模型</strong>：由条件概率分布 $P(Y\mid X)$ 表示</li>
+        <li><strong>非概率模型</strong>：由决策函数 $Y=f(X)$ 表示</li>
+      </ul>
+    </div>
+
+    <p><strong>（4）问题的形式化</strong></p>
+    <div class="figure">
+      <img src="./assets/pic-1.1.png" alt="监督学习问题形式化" width="450">
+      <div class="caption">图 1.1 · 监督学习问题</div>
+    </div>
+    <p>监督学习分为<strong>学习</strong>与<strong>预测</strong>两个过程。学习系统利用训练数据集得到模型 $\hat{P}(Y \mid X)$ 或 $Y=\hat{f}(X)$；预测系统对给定输入 $x_{N+1}$，由模型给出输出：</p>
+    <div class="eq-wrap">
+      $$ y_{N+1} = \arg\max_{y} \hat{P}(y \mid x_{N+1}) \quad \text{或} \quad y_{N+1} = \hat{f}(x_{N+1}) $$
+    </div>
+
+    <h4 id="sec-unsupervised">无监督学习（Unsupervised Learning）</h4>
+    <div class="card card-definition">
+      <div class="card-title">无监督学习的定义</div>
+      无监督学习是指从<strong>无标注数据</strong>中学习模型的机器学习问题。其本质是学习数据中的<strong>统计规律或潜在结构</strong>。
+    </div>
+    <p>假设 $\mathcal{X}$ 是输入空间，$\mathcal{Z}$ 是隐式结构空间。模型可表示为：</p>
+    <ul>
+      <li>函数：$z = g(x)$</li>
+      <li>条件概率分布：$P(z \mid x)$</li>
+      <li>条件概率分布：$P(x \mid z)$</li>
+    </ul>
+    <p>训练数据表示为 $U=\{x_1, x_2, \cdots, x_N\}$。</p>
+    <div class="figure">
+      <img src="./assets/pic-1.2.png" alt="无监督学习" width="450">
+      <div class="caption">图 1.2 · 无监督学习</div>
+    </div>
+
+    <h4 id="sec-reinforcement">强化学习（Reinforcement Learning）</h4>
+    <div class="card card-definition">
+      <div class="card-title">强化学习的定义</div>
+      强化学习是指智能系统在与环境的<strong>连续互动</strong>中学习最优行为策略的机器学习问题。其本质是学习最优的<strong>序贯决策</strong>。
+    </div>
+    <div class="figure">
+      <img src="./assets/pic-1.3.png" alt="强化学习" width="400">
+      <div class="caption">图 1.3 · 智能系统与环境的互动</div>
+    </div>
+
+    <div class="card card-theorem">
+      <div class="card-title">马尔可夫决策过程（MDP）五元组 $(\mathcal{S}, \mathcal{A}, \mathcal{P}, r, \gamma)$</div>
+      <ul style="margin:6px 0 0;">
+        <li>$\mathcal{S}$：状态（state）的集合</li>
+        <li>$\mathcal{A}$：动作（action）的集合</li>
+        <li>$\mathcal{P}$：状态转移概率函数 $P(s'\mid s,a) = P(s_{t+1}=s'\mid s_t=s, a_t=a)$</li>
+        <li>$r$：奖励函数 $r(s,a) = \mathbb{E}(r_{t+1}\mid s_t=s, a_t=a)$</li>
+        <li>$\gamma \in [0, 1]$：衰减系数（discount factor）</li>
+      </ul>
+    </div>
+
+    <p><strong>策略 $\pi$</strong> 定义为给定状态下动作的函数 $a = f(s)$ 或条件概率 $P(a \mid s)$。</p>
+
+    <div class="model-grid">
+      <div class="col">
+        <h6><span class="dot"></span>状态价值函数 $v_\pi(s)$</h6>
+        <div class="eq-wrap">
+          $$ v_{\pi}(s) = \mathbb{E}_{\pi}\!\left[r_{t+1} + \gamma r_{t+2} + \gamma^2 r_{t+3} + \cdots \mid s_t = s\right] $$
+        </div>
+      </div>
+      <div class="col b">
+        <h6><span class="dot"></span>动作价值函数 $q_\pi(s,a)$</h6>
+        <div class="eq-wrap">
+          $$ q_{\pi}(s,a) = \mathbb{E}_{\pi}\!\left[r_{t+1} + \gamma r_{t+2} + \gamma^2 r_{t+3} + \cdots \mid s_t = s, a_t = a\right] $$
+        </div>
+      </div>
+    </div>
+
+    <div class="card card-keypoint">
+      <div class="card-title">强化学习方法分类</div>
+      <ul style="margin:6px 0 0;">
+        <li><strong>无模型方法（model-free）</strong>：基于策略的（policy-based）、基于价值的（value-based）</li>
+        <li><strong>有模型方法（model-based）</strong></li>
+      </ul>
+    </div>
+
+    <h4 id="sec-semi">半监督学习与主动学习</h4>
+    <div class="model-grid">
+      <div class="col">
+        <h6><span class="dot"></span>半监督学习</h6>
+        利用<strong>标注数据 + 未标注数据</strong>学习预测模型。
+      </div>
+      <div class="col b">
+        <h6><span class="dot"></span>主动学习</h6>
+        机器不断<strong>主动给出实例</strong>让教师进行标注，然后利用标注数据学习。
+      </div>
+    </div>
+
+    <!-- 1.2.2 -->
+    <h3 id="sec-1-2-2">1.2.2 按模型分类</h3>
+
+    <h4>概率模型与非概率模型</h4>
+    <div class="section-intro">
+      在监督学习中，概率模型取条件概率分布形式 $P(y\mid x)$，非概率模型取函数形式 $y=f(x)$。两者的区别<strong>不在于输入与输出之间的映射关系，而在于模型的内部结构</strong>。
+    </div>
+
+    <div class="figure">
+      <img src="./assets/pic-1.4.png" alt="概率推理规则" width="400">
+      <div class="caption">图 1.4 · 加法规则与乘法规则（概率推理基础）</div>
+    </div>
+
+    <div class="model-grid">
+      <div class="col">
+        <h6><span class="dot"></span>概率模型</h6>
+        <div class="badge-list">
+          <span class="badge">决策树</span>
+          <span class="badge">朴素贝叶斯</span>
+          <span class="badge">隐马尔可夫模型</span>
+          <span class="badge">条件随机场</span>
+          <span class="badge">概率潜在语义分析</span>
+          <span class="badge">高斯混合模型</span>
+          <span class="badge">潜在狄利克雷分配</span>
+        </div>
+      </div>
+      <div class="col b">
+        <h6><span class="dot"></span>非概率模型</h6>
+        <div class="badge-list">
+          <span class="badge">感知机</span>
+          <span class="badge">支持向量机</span>
+          <span class="badge">k 近邻</span>
+          <span class="badge">AdaBoost</span>
+          <span class="badge">k 均值</span>
+          <span class="badge">潜在语义分析</span>
+          <span class="badge">神经网络</span>
+        </div>
+      </div>
+    </div>
+
+    <h4>线性模型与非线性模型</h4>
+    <div class="model-grid">
+      <div class="col">
+        <h6><span class="dot"></span>线性模型</h6>
+        <div class="badge-list">
+          <span class="badge">感知机</span>
+          <span class="badge">线性 SVM</span>
+          <span class="badge">k 近邻</span>
+          <span class="badge">k 均值</span>
+          <span class="badge">潜在语义分析</span>
+        </div>
+      </div>
+      <div class="col b">
+        <h6><span class="dot"></span>非线性模型</h6>
+        <div class="badge-list">
+          <span class="badge">核函数 SVM</span>
+          <span class="badge">AdaBoost</span>
+          <span class="badge">神经网络</span>
+          <span class="badge">深度学习</span>
+        </div>
+      </div>
+    </div>
+
+    <h4>参数模型与非参数模型</h4>
+    <div class="section-intro">
+      <strong>参数化模型</strong>：参数维度<strong>固定</strong>，模型可由有限维参数完全刻画。<br>
+      <strong>非参数化模型</strong>：参数维度<strong>不固定</strong>，模型由无限维参数完全刻画。
+    </div>
+    <div class="model-grid">
+      <div class="col">
+        <h6><span class="dot"></span>参数化模型</h6>
+        <div class="badge-list">
+          <span class="badge">感知机</span>
+          <span class="badge">朴素贝叶斯</span>
+          <span class="badge">逻辑斯谛回归</span>
+          <span class="badge">k 均值</span>
+          <span class="badge">高斯混合模型</span>
+        </div>
+      </div>
+      <div class="col b">
+        <h6><span class="dot"></span>非参数化模型</h6>
+        <div class="badge-list">
+          <span class="badge">决策树</span>
+          <span class="badge">支持向量机</span>
+          <span class="badge">AdaBoost</span>
+          <span class="badge">k 近邻</span>
+          <span class="badge">潜在语义分析</span>
+          <span class="badge">概率潜在语义分析</span>
+          <span class="badge">潜在狄利克雷分配</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 1.2.3 -->
+    <h3 id="sec-1-2-3">1.2.3 按算法分类</h3>
+    <div class="model-grid">
+      <div class="col">
+        <h6><span class="dot"></span>在线学习（Online Learning）</h6>
+        每次接受<strong>一个样本</strong>，进行预测，之后学习模型，并不断重复这一过程。
+      </div>
+      <div class="col b">
+        <h6><span class="dot"></span>批量学习（Batch Learning）</h6>
+        一次接受<strong>所有数据</strong>，学习模型，之后进行预测。
+      </div>
+    </div>
+    <div class="figure">
+      <img src="./assets/pic-1.5.png" alt="在线学习" width="400">
+      <div class="caption">图 1.5 · 在线学习</div>
+    </div>
+
+    <!-- 1.2.4 -->
+    <h3 id="sec-1-2-4">1.2.4 按技巧分类</h3>
+
+    <h4>贝叶斯学习（Bayesian Learning）</h4>
+    <div class="card card-definition">
+      <div class="card-title">贝叶斯学习的核心思想</div>
+      在概率模型的学习和推理中，利用<strong>贝叶斯定理</strong>，计算在给定数据条件下模型的条件概率（即<strong>后验概率</strong>），并应用这个原理进行模型估计与数据预测。
+    </div>
+
+    <p>设 $D$ 表示数据，$\theta$ 表示模型参数，后验概率 $P(\theta \mid D)$ 为：</p>
+    <div class="eq-wrap">
+      $$ P(\theta \mid D) = \frac{P(D \mid \theta)\,P(\theta)}{P(D)} $$
+    </div>
+    <p>其中：$P(D \mid \theta)$ 是<strong>似然函数</strong>，$P(\theta)$ 是<strong>先验概率</strong>，$P(D)$ 是<strong>边缘概率</strong>。</p>
+
+    <p>预测时，计算后验分布的期望：</p>
+    <div class="eq-wrap">
+      $$ P(x \mid D) = \int P(x \mid \theta, D)\,P(\theta \mid D)\,\mathrm{d}\theta $$
+    </div>
+
+    <div class="card card-compare">
+      <div class="card-title">贝叶斯估计 vs 极大似然估计</div>
+      代表了统计学中<strong>贝叶斯学派</strong>和<strong>频率学派</strong>对统计的不同认识。<br>
+      💡 <em>当先验分布是均匀分布、取后验概率最大时，贝叶斯估计退化为极大似然估计。</em>
+    </div>
+    <div class="figure">
+      <img src="./assets/pic-1.6.png" alt="贝叶斯估计与极大似然估计比较" width="500">
+      <div class="caption">图 1.6 · 贝叶斯估计与极大似然估计比较</div>
+    </div>
+
+    <h4>核方法（Kernel Method）</h4>
+    <div class="card card-keypoint">
+      <div class="card-title">核技巧（Kernel Trick）</div>
+      不显式地定义从<strong>低维输入空间</strong>到<strong>高维特征空间</strong>的映射，而是直接定义<strong>核函数</strong>（即映射之后在特征空间的内积），简化计算并达到同样的效果。
+    </div>
+    <div class="figure">
+      <img src="./assets/pic-1.7.png" alt="核方法" width="400">
+      <div class="caption">图 1.7 · 核方法</div>
+    </div>
+
+    <!-- 1.3 -->
+    <h2 id="sec-1-3"><span class="anchor-num">1.3</span>统计学习方法三要素</h2>
+    <div class="triplet">
+      <div class="item model">
+        <div class="num">1</div>
+        <h5>模型（Model）</h5>
+        <p>所要学习的<strong>条件概率分布</strong>或<strong>决策函数</strong>。模型的假设空间包含所有可能的候选模型。</p>
+      </div>
+      <div class="item strategy">
+        <div class="num">2</div>
+        <h5>策略（Strategy）</h5>
+        <p>按照什么样的<strong>准则</strong>学习或选择最优模型。引入损失函数、风险函数等度量。</p>
+      </div>
+      <div class="item algo">
+        <div class="num">3</div>
+        <h5>算法（Algorithm）</h5>
+        <p>学习模型的<strong>具体计算方法</strong>，归结为最优化问题的求解。</p>
+      </div>
+    </div>
+
+    <!-- 1.3.1 -->
+    <h3 id="sec-1-3-1">1.3.1 模型</h3>
+    <p>模型的<strong>假设空间（hypothesis space）</strong>包含所有可能的条件概率分布或决策函数，用 $\mathcal{F}$ 表示。</p>
+
+    <div class="model-grid">
+      <div class="col">
+        <h6><span class="dot"></span>决策函数的集合</h6>
+        <div class="eq-wrap">$$\mathcal{F} = \{f \mid Y = f(X)\}$$</div>
+        <div class="eq-wrap">$$\mathcal{F} = \{f \mid Y = f_\theta(X),\, \theta \in \mathbb{R}^n\}$$</div>
+      </div>
+      <div class="col b">
+        <h6><span class="dot"></span>条件概率的集合</h6>
+        <div class="eq-wrap">$$\mathcal{F} = \{P \mid P(Y \mid X)\}$$</div>
+        <div class="eq-wrap">$$\mathcal{F} = \{P \mid P_\theta(Y \mid X),\, \theta \in \mathbb{R}^n\}$$</div>
+      </div>
+    </div>
+
+    <!-- 1.3.2 -->
+    <h3 id="sec-1-3-2">1.3.2 策略</h3>
+    <div class="section-intro">
+      <strong>损失函数</strong>度量模型<strong>一次预测</strong>的好坏；<strong>风险函数</strong>度量<strong>平均意义下</strong>模型预测的好坏。
+    </div>
+
+    <h4>常用损失函数</h4>
+    <div class="loss-list">
+      <div class="loss-item">
+        <div class="name">① 0-1 损失</div>
+        <div class="eq-wrap">$$L(Y, f(X)) = \begin{cases} 1, & Y \neq f(X) \\ 0, & Y = f(X) \end{cases}$$</div>
+      </div>
+      <div class="loss-item">
+        <div class="name">② 平方损失</div>
+        <div class="eq-wrap">$$L(Y, f(X)) = (Y - f(X))^2$$</div>
+      </div>
+      <div class="loss-item">
+        <div class="name">③ 绝对损失</div>
+        <div class="eq-wrap">$$L(Y, f(X)) = |Y - f(X)|$$</div>
+      </div>
+      <div class="loss-item">
+        <div class="name">④ 对数损失</div>
+        <div class="eq-wrap">$$L(Y, f(X)) = -\log P(Y \mid X)$$</div>
+      </div>
+    </div>
+
+    <div class="card card-theorem">
+      <div class="card-title">风险函数（期望损失）</div>
+      <div class="eq-wrap">
+        $$\begin{aligned}R_{\exp}(f) &= \mathbb{E}_P[L(Y, f(X))] \\ &= \int_{\mathcal{X} \times \mathcal{Y}} L(y, f(x))\,P(x, y)\,\mathrm{d}x\,\mathrm{d}y\end{aligned}$$
+      </div>
+      理论上模型 $f(X)$ 关于联合分布 $P(X,Y)$ 的平均意义下的损失。
+    </div>
+
+    <div class="card card-warning">
+      <div class="card-title">病态问题（ill-formed problem）</div>
+      根据期望风险最小学习模型要用到联合分布，但联合分布又是未知的，所以监督学习就成为一个<strong>病态问题</strong>。
+    </div>
+
+    <div class="card card-theorem">
+      <div class="card-title">经验风险（经验损失）</div>
+      给定训练集 $T = \{(x_1, y_1), \cdots, (x_N, y_N)\}$，经验风险定义为：
+      <div class="eq-wrap">$$R_{emp}(f) = \frac{1}{N} \sum_{i=1}^{N} L(y_i, f(x_i))$$</div>
+      <strong>大数定律</strong>：当 $N \to \infty$ 时，$R_{emp}(f) \to R_{\exp}(f)$。
+    </div>
+
+    <h4>经验风险最小化 vs 结构风险最小化</h4>
+
+    <div class="card card-keypoint">
+      <div class="card-title">经验风险最小化（ERM）</div>
+      <div class="eq-wrap">$$\min_{f \in \mathcal{F}} \frac{1}{N} \sum_{i=1}^{N} L(y_i, f(x_i))$$</div>
+      <ul style="margin:6px 0 0;">
+        <li>✅ 样本容量足够大时，效果很好（如<strong>极大似然估计</strong>）</li>
+        <li>⚠️ 当模型是条件概率分布、损失函数是对数损失时，ERM 等价于<strong>极大似然估计</strong></li>
+        <li>❌ 样本容量小时，会产生<strong>过拟合（overfitting）</strong></li>
+      </ul>
+    </div>
+
+    <div class="card card-keypoint">
+      <div class="card-title">结构风险最小化（SRM）= 正则化</div>
+      <div class="eq-wrap">$$R_{srm}(f) = \frac{1}{N} \sum_{i=1}^{N} L(y_i, f(x_i)) + \lambda J(f)$$</div>
+      <ul style="margin:6px 0 0;">
+        <li>$J(f)$：模型的复杂度，定义在 $\mathcal{F}$ 上的泛函</li>
+        <li>$\lambda \geq 0$：权衡经验风险与模型复杂度的系数</li>
+        <li>📌 当模型是条件概率分布、损失函数是对数损失、模型复杂度由先验概率表示时，SRM 等价于<strong>最大后验概率估计（MAP）</strong></li>
+      </ul>
+    </div>
+
+    <!-- 1.3.3 -->
+    <h3 id="sec-1-3-3">1.3.3 算法</h3>
+    <p>算法是指学习模型的<strong>具体计算方法</strong>。统计学习问题归结为最优化问题，统计学习的算法成为求解最优化问题的算法：</p>
+    <ul>
+      <li>若存在显式的<strong>解析解</strong>，问题比较简单。</li>
+      <li>通常解析解不存在，需用<strong>数值计算方法</strong>求解。</li>
+      <li>需保证<strong>全局最优解</strong>，且求解过程高效，可利用已有优化算法或定制开发优化算法。</li>
+    </ul>
+
+    <!-- 1.4 -->
+    <h2 id="sec-1-4"><span class="anchor-num">1.4</span>模型评估与模型选择</h2>
+
+    <h3>1.4.1 训练误差与测试误差</h3>
+    <div class="model-grid">
+      <div class="col">
+        <h6><span class="dot"></span>训练误差</h6>
+        <div class="eq-wrap">$$R_{emp}(\hat{f}) = \frac{1}{N} \sum_{i=1}^{N} L(y_i, \hat{f}(x_i))$$</div>
+        关于<strong>训练数据集</strong>的平均损失。
+      </div>
+      <div class="col b">
+        <h6><span class="dot"></span>测试误差</h6>
+        <div class="eq-wrap">$$e_{test}(\hat{f}) = \frac{1}{N'} \sum_{i=1}^{N'} L(y_i, \hat{f}(x_i))$$</div>
+        关于<strong>测试数据集</strong>的平均损失。
+      </div>
+    </div>
+
+    <div class="card card-note">
+      <div class="card-title">泛化能力（Generalization Ability）</div>
+      学习方法对<strong>未知数据</strong>的预测能力。
+    </div>
+
+    <h3>1.4.2 过拟合与模型选择</h3>
+    <div class="card card-warning">
+      <div class="card-title">过拟合（Over-fitting）</div>
+      指学习时选择的模型所包含的<strong>参数过多</strong>，以至出现这一模型对<strong>已知数据预测得很好</strong>，但对<strong>未知数据预测得很差</strong>的现象。
+    </div>
+    <div class="figure">
+      <img src="./assets/pic-1.9.png" alt="训练误差与测试误差" width="500">
+      <div class="caption">图 1.9 · 训练误差和测试误差与模型复杂度的关系</div>
+    </div>
+    <p>当模型复杂度增大时，<strong>训练误差逐渐减小</strong>，而<strong>测试误差先减小后增大</strong>。需选择复杂度适当的模型，使测试误差最小。</p>
+
+    <!-- 1.5 -->
+    <h2 id="sec-1-5"><span class="anchor-num">1.5</span>正则化与交叉验证</h2>
+
+    <h3>1.5.1 正则化</h3>
+    <p>正则化是<strong>结构风险最小化</strong>策略的实现，在经验风险上加一个正则化项或罚项：</p>
+    <div class="eq-wrap">
+      $$\min_{f \in \mathcal{F}} \frac{1}{N} \sum_{i=1}^{N} L(y_i, f(x_i)) + \lambda J(f)$$
+    </div>
+
+    <div class="model-grid">
+      <div class="col">
+        <h6><span class="dot"></span>$L_2$ 范数正则化（岭回归）</h6>
+        <div class="eq-wrap">$$L(w) = \frac{1}{N}\sum_{i=1}^{N}(f(x_i;w)-y_i)^2 + \frac{\lambda}{2}\|w\|^2$$</div>
+      </div>
+      <div class="col b">
+        <h6><span class="dot"></span>$L_1$ 范数正则化（Lasso）</h6>
+        <div class="eq-wrap">$$L(w) = \frac{1}{N}\sum_{i=1}^{N}(f(x_i;w)-y_i)^2 + \lambda\|w\|_1$$</div>
+      </div>
+    </div>
+
+    <div class="card card-keypoint">
+      <div class="card-title">奥卡姆剃刀原理（Occam's Razor）</div>
+      在所有可能选择的模型中，能够<strong>很好地解释已知数据</strong>并且<strong>十分简单</strong>才是最好的模型。
+    </div>
+
+    <h3>1.5.2 交叉验证</h3>
+    <p>当数据不充足时，可采用交叉验证<strong>重复使用数据</strong>。</p>
+    <div class="triplet">
+      <div class="item model">
+        <div class="num">1</div>
+        <h5>简单交叉验证</h5>
+        <p>随机分为训练集与测试集，训练多个模型后选出测试误差最小的。</p>
+      </div>
+      <div class="item strategy">
+        <div class="num">S</div>
+        <h5>S 折交叉验证</h5>
+        <p>随机切分为 S 个互不相交、大小相同的子集，重复 S 次取平均测试误差。<strong>应用最广</strong>。</p>
+      </div>
+      <div class="item algo">
+        <div class="num">N</div>
+        <h5>留一交叉验证</h5>
+        <p>S 折的特殊情况：S = N（N 为数据集容量）。</p>
+      </div>
+    </div>
+
+    <!-- 1.6 -->
+    <h2 id="sec-1-6"><span class="anchor-num">1.6</span>泛化能力</h2>
+
+    <h3>1.6.1 泛化误差</h3>
+    <div class="card card-definition">
+      <div class="card-title">泛化误差（Generalization Error）</div>
+      用学到的模型 $f$ 对未知数据预测的误差：
+      <div class="eq-wrap">
+        $$R_{\exp}(f) = \mathbb{E}_P[L(Y, f(X))] = \int_{\mathcal{X} \times \mathcal{Y}} L(y, f(x))\,P(x,y)\,\mathrm{d}x\,\mathrm{d}y$$
+      </div>
+      <strong>泛化误差就是所学习模型的期望风险。</strong>
+    </div>
+
+    <h3>1.6.2 泛化误差上界</h3>
+    <div class="card card-keypoint">
+      <div class="card-title">泛化误差上界的两条性质</div>
+      <ul style="margin:6px 0 0;">
+        <li>📈 是<strong>样本容量</strong>的函数：样本容量增加时，泛化上界趋于 $0$</li>
+        <li>📊 是<strong>假设空间容量</strong>的函数：容量越大，模型越难学，上界越大</li>
+      </ul>
+    </div>
+
+    <div class="card card-theorem">
+      <div class="card-title">定理 1.1（泛化误差上界）</div>
+      对二类分类问题，假设空间 $\mathcal{F}=\{f_1, f_2, \ldots, f_d\}$ 是有限个函数的集合，对任意 $f \in \mathcal{F}$，至少以概率 $1-\delta$（$0 < \delta < 1$）有：
+      <div class="eq-wrap">
+        $$R(f) \leq \hat{R}(f) + \varepsilon(d, N, \delta) \tag{1.32}$$
+      </div>
+      <div class="eq-wrap">
+        $$\varepsilon(d, N, \delta) = \sqrt{\frac{1}{2N}\left(\log d + \log \frac{1}{\delta}\right)} \tag{1.33}$$
+      </div>
+      <ul style="margin:8px 0 0;">
+        <li>$R(f)$：泛化误差（左端）</li>
+        <li>$\hat{R}(f)$：训练误差（越小，泛化误差越小）</li>
+        <li>$\varepsilon(d, N, \delta)$：$N$ 的单调递减函数（趋于 0），$\log d$ 阶函数（假设空间越大越大）</li>
+      </ul>
+    </div>
+
+    <!-- 1.7 -->
+    <h2 id="sec-1-7"><span class="anchor-num">1.7</span>生成模型与判别模型</h2>
+
+    <div class="model-grid">
+      <div class="col">
+        <h6><span class="dot"></span>生成方法（Generative）</h6>
+        由数据学习<strong>联合概率分布 $P(X,Y)$</strong>，然后求出条件概率分布：
+        <div class="eq-wrap">$$P(Y \mid X) = \frac{P(X, Y)}{P(X)}$$</div>
+        <strong>典型模型</strong>：朴素贝叶斯法、隐马尔可夫模型。
+      </div>
+      <div class="col b">
+        <h6><span class="dot"></span>判别方法（Discriminative）</h6>
+        由数据<strong>直接学习</strong>决策函数 $f(X)$ 或条件概率 $P(Y \mid X)$。<br>
+        <strong>典型模型</strong>：k 近邻、感知机、决策树、逻辑斯谛回归、最大熵、SVM、提升方法、条件随机场。
+      </div>
+    </div>
+
+    <div class="card card-compare">
+      <div class="card-title">生成方法 vs 判别方法</div>
+      <ul style="margin:6px 0 0;">
+        <li><strong>生成方法的特点</strong>
+          <ul>
+            <li>① 可以还原出联合概率分布 $P(X,Y)$，判别方法不能</li>
+            <li>② 学习收敛速度更快，样本容量增加时更快收敛于真实模型</li>
+            <li>③ 当存在<strong>隐变量</strong>时仍可使用，判别方法不能</li>
+          </ul>
+        </li>
+        <li><strong>判别方法的特点</strong>
+          <ul>
+            <li>① 直接面对预测，往往学习的<strong>准确率更高</strong></li>
+            <li>② 可对数据进行各种程度的抽象、定义特征并使用，从而<strong>简化学习问题</strong></li>
+          </ul>
+        </li>
+      </ul>
+    </div>
+
+    <!-- 1.8 -->
+    <h2 id="sec-1-8"><span class="anchor-num">1.8</span>监督学习应用</h2>
+    <div class="triplet">
+      <div class="item model">
+        <div class="num">A</div>
+        <h5>分类问题</h5>
+        <p>输出为有限个<strong>离散类别</strong>。</p>
+      </div>
+      <div class="item strategy">
+        <div class="num">B</div>
+        <h5>标注问题</h5>
+        <p>输入<strong>观测序列</strong>，输出<strong>标记序列</strong>。</p>
+      </div>
+      <div class="item algo">
+        <div class="num">C</div>
+        <h5>回归问题</h5>
+        <p>预测<strong>连续</strong>变量之间的关系。</p>
+      </div>
+    </div>
+
+    <h3>1.8.1 分类问题</h3>
+    <p><strong>分类器（classifier）</strong>对新输入进行预测，可能的输出称为<strong>类别（class）</strong>。</p>
+    <div class="figure">
+      <img src="./assets/pic-1.10.png" alt="分类问题" width="400">
+      <div class="caption">图 1.10 · 分类问题</div>
+    </div>
+
+    <p>评价指标：</p>
+    <ul>
+      <li><strong>分类准确率（accuracy）</strong>：正确分类的样本数 ÷ 总样本数</li>
+      <li><strong>二类分类</strong>常用<strong>精确率（Precision）</strong>与<strong>召回率（Recall）</strong></li>
+    </ul>
+
+    <div class="figure">
+      <img src="https://cdn.prod.website-files.com/660ef16a9e0687d9cc27474a/662c426738658d748af1b1e8_644af6597e976592dc5d10b5_classification_guide_apc08.png" alt="混淆矩阵" width="500">
+      <div class="caption">混淆矩阵：TP / FP / FN / TN</div>
+    </div>
+
+    <div class="loss-list">
+      <div class="loss-item">
+        <div class="name">精确率 P</div>
+        <div class="eq-wrap">$$P = \frac{TP}{TP + FP}$$</div>
+      </div>
+      <div class="loss-item">
+        <div class="name">召回率 R</div>
+        <div class="eq-wrap">$$R = \frac{TP}{TP + FN}$$</div>
+      </div>
+      <div class="loss-item">
+        <div class="name">F₁ 值（调和均值）</div>
+        <div class="eq-wrap">$$\frac{2}{F_1} = \frac{1}{P} + \frac{1}{R} = \frac{2TP}{2TP + FP + FN}$$</div>
+      </div>
+    </div>
+
+    <h3>1.8.2 标注问题</h3>
+    <p>输入是<strong>观测序列</strong>，输出是<strong>标记序列或状态序列</strong>。</p>
+    <p>训练数据：</p>
+    <div class="eq-wrap">$$T = \{(x_1, y_1), (x_2, y_2), \ldots, (x_N, y_N)\}$$</div>
+    <ul>
+      <li>$x_i = (x_i^{(1)}, x_i^{(2)}, \ldots, x_i^{(n)})^{\mathrm{T}}$：观测序列</li>
+      <li>$y_i = (y_i^{(1)}, y_i^{(2)}, \ldots, y_i^{(n)})^{\mathrm{T}}$：对应的标记序列</li>
+      <li>$n$ 是序列长度，对不同样本可不同</li>
+    </ul>
+
+    <p>模型表示为条件概率分布：</p>
+    <div class="eq-wrap">
+      $$P(Y^{(1)}, Y^{(2)}, \cdots, Y^{(n)} \mid X^{(1)}, X^{(2)}, \cdots, X^{(n)})$$
+    </div>
+
+    <div class="figure">
+      <img src="./assets/pic-1.11.png" alt="标注问题" width="400">
+      <div class="caption">图 1.11 · 标注问题</div>
+    </div>
+
+    <div class="card card-note">
+      <div class="card-title">典型方法</div>
+      隐马尔可夫模型（HMM）、条件随机场（CRF）。在<strong>信息抽取</strong>、<strong>自然语言处理</strong>等领域被广泛研究。
+    </div>
+
+    <h3>1.8.3 回归问题</h3>
+    <p>回归用于预测输入变量（自变量）和输出变量（因变量）之间的关系。</p>
+    <div class="eq-wrap">$$T = \{(x_1, y_1), (x_2, y_2), \ldots, (x_N, y_N)\}$$</div>
+    <p>其中 $x_i \in \mathbb{R}^n$，$y_i \in \mathbb{R}$。</p>
+
+    <div class="figure">
+      <img src="./assets/pic-1.12.png" alt="回归问题" width="400">
+      <div class="caption">图 1.12 · 回归问题</div>
+    </div>
+
+    <div class="model-grid">
+      <div class="col">
+        <h6><span class="dot"></span>按输入变量个数</h6>
+        <strong>一元回归</strong> · <strong>多元回归</strong>
+      </div>
+      <div class="col b">
+        <h6><span class="dot"></span>按映射关系类型</h6>
+        <strong>线性回归</strong> · <strong>非线性回归</strong>
+      </div>
+    </div>
+
+    <div class="card card-keypoint">
+      <div class="card-title">最常用损失：平方损失</div>
+      此情况下回归问题可由著名的<strong>最小二乘法（least squares）</strong>求解。
+    </div>
+
+    <!-- 总结 -->
+    <h2 id="sec-summary"><span class="anchor-num">★</span>本章核心要点回顾</h2>
+    <div class="model-grid">
+      <div class="col">
+        <h6><span class="dot"></span>必须掌握的关键概念</h6>
+        <ul>
+          <li>统计学习方法的<strong>三要素</strong>：模型 + 策略 + 算法</li>
+          <li><strong>四种学习范式</strong>：监督、无监督、强化、半监督/主动</li>
+          <li>损失函数与<strong>经验风险 vs 期望风险</strong></li>
+          <li><strong>ERM vs SRM</strong>（结构风险 = 经验风险 + 正则化项）</li>
+          <li><strong>过拟合</strong>与模型选择、交叉验证</li>
+        </ul>
+      </div>
+      <div class="col b">
+        <h6><span class="dot"></span>三组重要对比</h6>
+        <ul>
+          <li><strong>概率 vs 非概率</strong>、<strong>线性 vs 非线性</strong>、<strong>参数化 vs 非参数化</strong></li>
+          <li><strong>极大似然 vs 贝叶斯估计</strong>（频率派 vs 贝叶斯派）</li>
+          <li><strong>生成模型 vs 判别模型</strong></li>
+          <li><strong>训练误差 vs 测试误差 vs 泛化误差</strong></li>
+          <li><strong>分类 / 标注 / 回归</strong>三大监督学习应用</li>
+        </ul>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<button id="expandToc" title="展开目录" aria-label="展开目录">»</button>
+<button id="toTop" title="回到顶部">↑</button>
+
+<script>
+  // 阅读进度条
+  const progress = document.getElementById('progress');
+  function onScroll() {
+    const h = document.documentElement;
+    const scrolled = h.scrollTop;
+    const total = h.scrollHeight - h.clientHeight;
+    progress.style.width = (scrolled / total * 100) + '%';
+
+    const toTop = document.getElementById('toTop');
+    if (scrolled > 400) toTop.classList.add('show');
+    else toTop.classList.remove('show');
+
+    // 高亮当前 TOC
+    const headings = document.querySelectorAll('main.content h2[id], main.content h3[id], main.content h4[id]');
+    let current = null;
+    headings.forEach(h => {
+      if (h.getBoundingClientRect().top <= 80) current = h;
+    });
+    document.querySelectorAll('aside.toc a').forEach(a => a.classList.remove('active'));
+    if (current) {
+      const link = document.querySelector('aside.toc a[href="#' + current.id + '"]');
+      if (link) link.classList.add('active');
+    }
+  }
+  document.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+
+  document.getElementById('toTop').addEventListener('click', () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+
+  // 侧边目录折叠/展开
+  const layout = document.querySelector('.layout');
+  const collapseBtn = document.getElementById('collapseToc');
+  const expandBtn = document.getElementById('expandToc');
+  const TOC_KEY = 'ch01_toc_collapsed';
+
+  function setTocCollapsed(collapsed) {
+    if (collapsed) {
+      layout.classList.add('toc-collapsed');
+      expandBtn.classList.add('show');
+    } else {
+      layout.classList.remove('toc-collapsed');
+      expandBtn.classList.remove('show');
+    }
+    try { localStorage.setItem(TOC_KEY, collapsed ? '1' : '0'); } catch (e) {}
+  }
+
+  collapseBtn.addEventListener('click', () => setTocCollapsed(true));
+  expandBtn.addEventListener('click', () => setTocCollapsed(false));
+
+  try {
+    if (localStorage.getItem(TOC_KEY) === '1') setTocCollapsed(true);
+  } catch (e) {}
+
+  // 快捷键：按 [ 键切换目录
+  document.addEventListener('keydown', (e) => {
+    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+    if (e.key === '[' || e.key === ']') {
+      setTocCollapsed(!layout.classList.contains('toc-collapsed'));
+    }
+  });
+</script>
+
+</body>
+</html>

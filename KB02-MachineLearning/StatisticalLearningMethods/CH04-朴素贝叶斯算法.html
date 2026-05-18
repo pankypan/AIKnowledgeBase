@@ -1,0 +1,1059 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>第4章 朴素贝叶斯算法 · 学习笔记</title>
+
+<!-- MathJax 配置 -->
+<script>
+  window.MathJax = {
+    tex: {
+      inlineMath: [['$', '$'], ['\\(', '\\)']],
+      displayMath: [['$$', '$$'], ['\\[', '\\]']],
+      processEscapes: true,
+      tags: 'ams'
+    },
+    svg: { fontCache: 'global' },
+    options: {
+      skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+  };
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js" id="MathJax-script" async></script>
+
+<style>
+  :root {
+    --bg: #f6f7fb;
+    --bg-elev: #ffffff;
+    --text: #2b2d42;
+    --text-soft: #5a5f7d;
+    --muted: #8a8fa9;
+    --border: #e6e8f1;
+
+    --primary: #5b6bf5;
+    --primary-dark: #3f4ed1;
+    --primary-soft: #eef0ff;
+
+    --accent: #7c5cff;
+    --accent-soft: #f1ecff;
+
+    --pink: #ff6b9a;
+    --orange: #ff9f43;
+    --green: #22c55e;
+    --teal: #06b6d4;
+    --red: #ef4444;
+    --yellow: #f59e0b;
+
+    --shadow-sm: 0 1px 2px rgba(20, 25, 60, 0.05);
+    --shadow: 0 4px 18px rgba(20, 25, 60, 0.06);
+    --shadow-lg: 0 10px 30px rgba(20, 25, 60, 0.10);
+
+    --radius: 12px;
+    --radius-lg: 16px;
+
+    --code-bg: #f2f3fb;
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+                 "Hiragino Sans GB", "Microsoft YaHei", "Helvetica Neue",
+                 Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.85;
+    font-size: 15.5px;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  #progress {
+    position: fixed; top: 0; left: 0; height: 3px;
+    width: 0; z-index: 200;
+    background: linear-gradient(90deg, var(--primary), var(--accent), var(--pink));
+    transition: width 0.1s linear;
+  }
+
+  /* Hero（本章使用青蓝→紫的渐变与 CH01 区分） */
+  .hero {
+    position: relative;
+    color: #fff;
+    background: linear-gradient(135deg, #06b6d4 0%, #5b6bf5 50%, #7c5cff 100%);
+    padding: 56px 24px 80px;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: "";
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(circle at 20% 20%, rgba(255,255,255,0.15), transparent 40%),
+      radial-gradient(circle at 80% 70%, rgba(255,255,255,0.12), transparent 45%);
+    pointer-events: none;
+  }
+  .hero-inner { max-width: 1200px; margin: 0 auto; position: relative; }
+  .hero .eyebrow {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: rgba(255,255,255,0.18);
+    padding: 6px 14px; border-radius: 999px;
+    font-size: 13px; font-weight: 500;
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255,255,255,0.25);
+  }
+  .hero h1 {
+    font-size: 38px; line-height: 1.25;
+    margin: 14px 0 8px; font-weight: 700;
+    letter-spacing: -0.5px;
+  }
+  .hero p.subtitle {
+    font-size: 16px; margin: 0;
+    opacity: 0.92; max-width: 720px;
+  }
+  .hero .meta {
+    display: flex; flex-wrap: wrap; gap: 10px;
+    margin-top: 22px;
+  }
+  .hero .meta .tag {
+    background: rgba(255,255,255,0.16);
+    border: 1px solid rgba(255,255,255,0.28);
+    padding: 5px 12px; border-radius: 999px;
+    font-size: 13px; font-weight: 500;
+  }
+
+  .layout {
+    max-width: 1200px;
+    margin: -40px auto 64px;
+    padding: 0 24px;
+    display: grid;
+    grid-template-columns: 260px minmax(0, 1fr);
+    gap: 28px;
+    position: relative;
+    transition: grid-template-columns 0.3s ease;
+  }
+  .layout.toc-collapsed {
+    grid-template-columns: 0 minmax(0, 1fr);
+    gap: 0;
+  }
+
+  aside.toc {
+    position: sticky;
+    top: 16px;
+    align-self: start;
+    max-height: calc(100vh - 32px);
+    overflow-y: auto;
+    background: var(--bg-elev);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow);
+    padding: 20px 16px;
+    border: 1px solid var(--border);
+    transition: opacity 0.25s ease, transform 0.3s ease, visibility 0.3s;
+  }
+  .layout.toc-collapsed aside.toc {
+    opacity: 0;
+    visibility: hidden;
+    transform: translateX(-20px);
+    pointer-events: none;
+  }
+  aside.toc h3 {
+    margin: 0 0 12px;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    color: var(--muted);
+    display: flex; align-items: center; gap: 8px;
+    justify-content: space-between;
+  }
+  aside.toc h3 .title-text {
+    display: flex; align-items: center; gap: 8px;
+  }
+  aside.toc h3 .title-text::before {
+    content: ""; display: inline-block;
+    width: 4px; height: 14px; border-radius: 4px;
+    background: linear-gradient(180deg, var(--teal), var(--accent));
+  }
+  aside.toc .collapse-btn {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    width: 26px; height: 26px;
+    border-radius: 6px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center; justify-content: center;
+    font-size: 14px;
+    transition: all 0.15s;
+  }
+  aside.toc .collapse-btn:hover {
+    background: var(--primary-soft);
+    border-color: var(--primary);
+    color: var(--primary-dark);
+  }
+  aside.toc ul { list-style: none; padding: 0; margin: 0; }
+  aside.toc li > a {
+    display: block;
+    padding: 6px 10px;
+    color: var(--text-soft);
+    text-decoration: none;
+    border-radius: 8px;
+    font-size: 13.5px;
+    border-left: 2px solid transparent;
+    transition: background 0.15s, color 0.15s, border-color 0.15s;
+  }
+  aside.toc li.lvl-2 > a { font-weight: 600; color: var(--text); }
+  aside.toc li.lvl-3 > a { padding-left: 22px; font-size: 13px; }
+  aside.toc li.lvl-4 > a { padding-left: 34px; font-size: 12.5px; color: var(--muted); }
+  aside.toc li > a:hover {
+    background: var(--primary-soft);
+    color: var(--primary-dark);
+  }
+  aside.toc li > a.active {
+    background: var(--primary-soft);
+    color: var(--primary-dark);
+    border-left-color: var(--primary);
+    font-weight: 600;
+  }
+  aside.toc::-webkit-scrollbar { width: 6px; }
+  aside.toc::-webkit-scrollbar-thumb { background: #d6d9ea; border-radius: 3px; }
+
+  #expandToc {
+    position: fixed;
+    left: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 36px; height: 56px;
+    background: var(--bg-elev);
+    border: 1px solid var(--border);
+    border-radius: 0 12px 12px 0;
+    box-shadow: var(--shadow);
+    cursor: pointer;
+    display: none;
+    align-items: center; justify-content: center;
+    color: var(--primary);
+    font-size: 18px;
+    z-index: 90;
+    transition: background 0.15s, transform 0.2s, left 0.2s;
+  }
+  #expandToc:hover {
+    background: var(--primary-soft);
+    transform: translateY(-50%) translateX(2px);
+  }
+  #expandToc.show { display: flex; }
+
+  /* 主内容 */
+  main.content {
+    background: var(--bg-elev);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow);
+    padding: 36px 44px 60px;
+    border: 1px solid var(--border);
+    min-width: 0;
+  }
+  main.content h2 {
+    margin: 48px 0 18px;
+    font-size: 26px; font-weight: 700;
+    color: var(--text);
+    padding-bottom: 10px;
+    border-bottom: 2px solid var(--border);
+    position: relative;
+    scroll-margin-top: 16px;
+  }
+  main.content h2::before {
+    content: "";
+    position: absolute; left: 0; bottom: -2px;
+    width: 80px; height: 2px;
+    background: linear-gradient(90deg, var(--teal), var(--accent));
+    border-radius: 2px;
+  }
+  main.content h2:first-child { margin-top: 0; }
+
+  main.content h3 {
+    margin: 34px 0 12px;
+    font-size: 21px; font-weight: 700;
+    color: var(--primary-dark);
+    display: flex; align-items: center; gap: 10px;
+    scroll-margin-top: 16px;
+  }
+  main.content h3::before {
+    content: ""; flex: 0 0 auto;
+    width: 6px; height: 22px; border-radius: 3px;
+    background: linear-gradient(180deg, var(--teal), var(--accent));
+  }
+
+  main.content h4 {
+    margin: 26px 0 10px;
+    font-size: 17px; font-weight: 700;
+    color: var(--accent);
+    scroll-margin-top: 16px;
+  }
+  main.content h4::before { content: "▸ "; color: var(--accent); font-weight: 700; }
+
+  main.content p { margin: 12px 0; }
+  main.content a { color: var(--primary); text-decoration: none; }
+  main.content a:hover { text-decoration: underline; }
+  main.content ul, main.content ol { padding-left: 1.5em; }
+  main.content li { margin: 5px 0; }
+  main.content li::marker { color: var(--primary); }
+  main.content strong {
+    color: var(--primary-dark);
+    font-weight: 700;
+    background: linear-gradient(180deg, transparent 60%, rgba(91,107,245,0.15) 60%);
+    padding: 0 2px;
+  }
+  main.content em { color: var(--accent); font-style: normal; }
+
+  code {
+    font-family: "JetBrains Mono", "Fira Code", Consolas, monospace;
+    background: var(--code-bg);
+    color: #d6336c;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 13.5px;
+  }
+
+  /* 卡片 */
+  .card {
+    margin: 18px 0;
+    padding: 16px 20px;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    background: var(--bg-elev);
+    box-shadow: var(--shadow-sm);
+    border-left-width: 5px;
+  }
+  .card .card-title {
+    font-weight: 700;
+    display: flex; align-items: center; gap: 8px;
+    margin-bottom: 6px;
+    font-size: 15px;
+  }
+  .card-definition { border-left-color: var(--primary); background: linear-gradient(180deg, #fafbff, #fff); }
+  .card-definition .card-title { color: var(--primary-dark); }
+  .card-definition .card-title::before { content: "📘"; }
+
+  .card-keypoint { border-left-color: var(--accent); background: linear-gradient(180deg, #faf8ff, #fff); }
+  .card-keypoint .card-title { color: var(--accent); }
+  .card-keypoint .card-title::before { content: "💡"; }
+
+  .card-theorem { border-left-color: var(--teal); background: linear-gradient(180deg, #f0fbfd, #fff); }
+  .card-theorem .card-title { color: #047892; }
+  .card-theorem .card-title::before { content: "📐"; }
+
+  .card-warning { border-left-color: var(--yellow); background: linear-gradient(180deg, #fffaef, #fff); }
+  .card-warning .card-title { color: #b45309; }
+  .card-warning .card-title::before { content: "⚠️"; }
+
+  .card-note { border-left-color: var(--green); background: linear-gradient(180deg, #f0fdf4, #fff); }
+  .card-note .card-title { color: #15803d; }
+  .card-note .card-title::before { content: "📝"; }
+
+  .card-compare { border-left-color: var(--pink); background: linear-gradient(180deg, #fff5fa, #fff); }
+  .card-compare .card-title { color: #be185d; }
+  .card-compare .card-title::before { content: "⚖️"; }
+
+  .card-derive { border-left-color: var(--orange); background: linear-gradient(180deg, #fff8ed, #fff); }
+  .card-derive .card-title { color: #c2410c; }
+  .card-derive .card-title::before { content: "🧮"; }
+
+  /* 公式块 */
+  .eq-wrap {
+    background: linear-gradient(180deg, #fbfbff, #f7f8fe);
+    border: 1px dashed #d3d8f0;
+    border-radius: 10px;
+    padding: 6px 14px;
+    margin: 10px 0;
+    overflow-x: auto;
+  }
+  .eq-wrap.numbered {
+    position: relative;
+    padding-right: 70px;
+  }
+  .eq-wrap .eq-tag {
+    position: absolute;
+    right: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--muted);
+    font-size: 13px;
+    font-style: italic;
+  }
+  mjx-container[display="true"] {
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: 6px 0;
+  }
+
+  /* 分隔线 */
+  hr.sep {
+    border: 0;
+    height: 1px;
+    margin: 22px 0;
+    background: linear-gradient(90deg, transparent, var(--border), transparent);
+  }
+
+  /* 章节锚点圆 */
+  .anchor-num {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 38px; height: 30px;
+    background: linear-gradient(135deg, var(--teal), var(--accent));
+    color: #fff;
+    border-radius: 8px;
+    font-size: 14px; font-weight: 700;
+    margin-right: 10px;
+    box-shadow: var(--shadow-sm);
+  }
+
+  /* 流程步骤 */
+  .pipeline {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin: 18px 0;
+  }
+  .pipeline .step {
+    background: var(--bg-elev);
+    border: 1px solid var(--border);
+    border-top: 4px solid var(--primary);
+    border-radius: 12px;
+    padding: 14px 16px;
+    position: relative;
+    box-shadow: var(--shadow-sm);
+  }
+  .pipeline .step:nth-child(2) { border-top-color: var(--accent); }
+  .pipeline .step:nth-child(3) { border-top-color: var(--pink); }
+  .pipeline .step .num {
+    position: absolute;
+    right: 12px; top: 8px;
+    font-size: 30px; font-weight: 800;
+    color: var(--primary);
+    opacity: 0.18;
+    line-height: 1;
+  }
+  .pipeline .step:nth-child(2) .num { color: var(--accent); }
+  .pipeline .step:nth-child(3) .num { color: var(--pink); }
+  .pipeline .step h5 {
+    margin: 0 0 6px;
+    color: var(--primary-dark);
+    font-size: 15px;
+  }
+  .pipeline .step:nth-child(2) h5 { color: var(--accent); }
+  .pipeline .step:nth-child(3) h5 { color: #be185d; }
+  .pipeline .step p { margin: 0; font-size: 13.5px; color: var(--text-soft); }
+
+  /* 双列卡片 */
+  .grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin: 16px 0;
+  }
+  .grid-2 .col {
+    padding: 14px 18px;
+    border-radius: 12px;
+    background: var(--bg-elev);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-sm);
+  }
+  .grid-2 .col h6 {
+    margin: 0 0 8px; font-size: 14px;
+    color: var(--primary-dark);
+    font-weight: 700;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .grid-2 .col h6 .dot {
+    display: inline-block; width: 8px; height: 8px; border-radius: 50%;
+    background: var(--primary);
+  }
+  .grid-2 .col.b h6 .dot { background: var(--pink); }
+  .grid-2 .col.b h6 { color: #be185d; }
+
+  /* 算法流程框 */
+  .algo-box {
+    margin: 20px 0;
+    border-radius: 14px;
+    border: 2px solid var(--primary);
+    overflow: hidden;
+    box-shadow: var(--shadow);
+  }
+  .algo-box .algo-header {
+    background: linear-gradient(135deg, var(--primary), var(--accent));
+    color: #fff;
+    padding: 12px 20px;
+    font-weight: 700;
+    display: flex; align-items: center; gap: 10px;
+    font-size: 16px;
+  }
+  .algo-box .algo-header::before {
+    content: "⚙️"; font-size: 18px;
+  }
+  .algo-box .algo-body {
+    padding: 18px 22px;
+    background: linear-gradient(180deg, #fafbff, #fff);
+  }
+  .algo-box .algo-section-title {
+    font-weight: 700;
+    color: var(--primary-dark);
+    margin: 12px 0 4px;
+    font-size: 14.5px;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .algo-box .algo-section-title::before {
+    content: ""; display: inline-block;
+    width: 4px; height: 14px; border-radius: 2px;
+    background: var(--primary);
+  }
+  .algo-box .algo-section-title:first-child { margin-top: 0; }
+  .algo-box ol { padding-left: 1.5em; margin: 6px 0; }
+
+  /* 回到顶部 */
+  #toTop {
+    position: fixed; right: 24px; bottom: 24px;
+    width: 44px; height: 44px;
+    border-radius: 50%; border: none;
+    background: linear-gradient(135deg, var(--teal), var(--accent));
+    color: #fff; font-size: 18px;
+    cursor: pointer;
+    box-shadow: var(--shadow-lg);
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.25s;
+    z-index: 100;
+  }
+  #toTop.show { opacity: 1; pointer-events: auto; }
+  #toTop:hover { transform: translateY(-2px); }
+
+  /* 移动端 */
+  @media (max-width: 960px) {
+    .layout { grid-template-columns: 1fr; }
+    aside.toc { position: static; max-height: none; }
+    main.content { padding: 24px 20px 40px; }
+    .pipeline { grid-template-columns: 1fr; }
+    .grid-2 { grid-template-columns: 1fr; }
+    .hero h1 { font-size: 28px; }
+  }
+
+  .section-intro {
+    background: linear-gradient(135deg, #ecfeff 0%, #f1ecff 100%);
+    border-radius: 12px;
+    padding: 14px 18px;
+    margin: 10px 0 18px;
+    color: var(--text-soft);
+    border-left: 4px solid var(--teal);
+  }
+
+  /* 推导步骤块 */
+  .derive-steps {
+    counter-reset: dstep;
+    list-style: none;
+    padding: 0;
+    margin: 12px 0;
+  }
+  .derive-steps > li {
+    counter-increment: dstep;
+    background: #fff;
+    border: 1px solid var(--border);
+    border-left: 4px solid var(--orange);
+    border-radius: 10px;
+    padding: 12px 16px 12px 50px;
+    position: relative;
+    margin: 10px 0;
+    box-shadow: var(--shadow-sm);
+  }
+  .derive-steps > li::before {
+    content: counter(dstep);
+    position: absolute;
+    left: 14px; top: 50%;
+    transform: translateY(-50%);
+    width: 26px; height: 26px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--orange), #ff6b9a);
+    color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 700;
+    box-shadow: var(--shadow-sm);
+  }
+
+  /* 公式编号小徽章（在 H4 等场景） */
+  .eq-num {
+    display: inline-block;
+    background: var(--primary-soft);
+    color: var(--primary-dark);
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 600;
+    margin-left: 6px;
+    font-style: italic;
+  }
+</style>
+</head>
+
+<body>
+
+<div id="progress"></div>
+
+<header class="hero">
+  <div class="hero-inner">
+    <span class="eyebrow">📚 《统计学习方法》（李航 · 第2版）学习笔记</span>
+    <h1>第 4 章 · 朴素贝叶斯算法</h1>
+    <p class="subtitle">基于<strong>贝叶斯定理</strong>与<strong>特征条件独立假设</strong>的分类方法。先学习联合概率分布 $P(X,Y)$，再用贝叶斯定理求出后验概率最大的输出 $y$。</p>
+    <div class="meta">
+      <span class="tag">🧠 生成模型</span>
+      <span class="tag">📐 条件独立假设</span>
+      <span class="tag">🎯 后验概率最大化</span>
+      <span class="tag">🧪 极大似然 / 贝叶斯估计</span>
+      <span class="tag">🛡️ 拉普拉斯平滑</span>
+    </div>
+  </div>
+</header>
+
+<div class="layout">
+
+  <aside class="toc">
+    <h3>
+      <span class="title-text">本章目录</span>
+      <button class="collapse-btn" id="collapseToc" title="折叠目录" aria-label="折叠目录">«</button>
+    </h3>
+    <ul>
+      <li class="lvl-2"><a href="#overview">章节导读</a></li>
+      <li class="lvl-2"><a href="#sec-4-1">4.1 学习与分类</a></li>
+      <li class="lvl-3"><a href="#sec-4-1-1">4.1.1 基本方法</a></li>
+      <li class="lvl-3"><a href="#sec-4-1-2">4.1.2 后验概率最大化的含义</a></li>
+      <li class="lvl-2"><a href="#sec-4-2">4.2 参数估计</a></li>
+      <li class="lvl-3"><a href="#sec-4-2-1">4.2.1 极大似然估计</a></li>
+      <li class="lvl-3"><a href="#sec-4-2-2">4.2.2 学习与分类算法</a></li>
+      <li class="lvl-3"><a href="#sec-4-2-3">4.2.3 贝叶斯估计</a></li>
+      <li class="lvl-2"><a href="#summary">本章要点回顾</a></li>
+    </ul>
+  </aside>
+
+  <main class="content">
+
+    <!-- 章节导读 -->
+    <h2 id="overview"><span class="anchor-num">★</span>章节导读</h2>
+
+    <div class="card card-definition">
+      <div class="card-title">朴素贝叶斯（Naive Bayes）</div>
+      朴素贝叶斯法是基于 <strong>贝叶斯定理</strong> 与 <strong>特征条件独立假设</strong> 的分类方法：
+      <ol style="margin:8px 0 0;">
+        <li>对训练数据集，首先基于<strong>特征条件独立假设</strong>学习输入输出的联合概率分布；</li>
+        <li>然后基于此模型，对给定输入 $x$，利用<strong>贝叶斯定理</strong>求出后验概率最大的输出 $y$。</li>
+      </ol>
+    </div>
+
+    <div class="pipeline">
+      <div class="step">
+        <div class="num">1</div>
+        <h5>训练阶段</h5>
+        <p>估计 <strong>先验</strong> $P(Y=c_k)$ 与<strong>条件概率</strong> $P(X^{(j)} \mid Y)$，得到联合分布。</p>
+      </div>
+      <div class="step">
+        <div class="num">2</div>
+        <h5>预测阶段</h5>
+        <p>对新样本 $x$，利用<strong>贝叶斯定理</strong>计算后验概率 $P(Y \mid X=x)$。</p>
+      </div>
+      <div class="step">
+        <div class="num">3</div>
+        <h5>分类决策</h5>
+        <p>选取后验概率<strong>最大</strong>的类别作为输出 $y$。</p>
+      </div>
+    </div>
+
+    <!-- 4.1 -->
+    <h2 id="sec-4-1"><span class="anchor-num">4.1</span>朴素贝叶斯法的学习与分类</h2>
+
+    <h3 id="sec-4-1-1">4.1.1 基本方法</h3>
+
+    <div class="section-intro">
+      设输入空间 $\mathcal{X} \subseteq \mathbf{R}^{n}$ 为 $n$ 维向量的集合，输出空间为类标记集合 $\mathcal{Y} = \{c_1, c_2, \cdots, c_K\}$。输入为特征向量 $x \in \mathcal{X}$，输出为类标记 $y \in \mathcal{Y}$。训练数据集
+      <div class="eq-wrap">
+        $$ T = \{(x_1, y_1), (x_2, y_2), \ldots, (x_N, y_N)\} $$
+      </div>
+      由 $P(X, Y)$ <strong>独立同分布</strong>产生。
+    </div>
+
+    <p>朴素贝叶斯法通过训练数据集学习<strong>联合概率分布 $P(X, Y)$</strong>。具体地，学习以下两类分布：</p>
+
+    <div class="grid-2">
+      <div class="col">
+        <h6><span class="dot"></span>① 先验概率分布</h6>
+        <div class="eq-wrap numbered">
+          $$ P(Y=c_k),\quad k=1,2, \cdots, K $$
+          <span class="eq-tag">(4.1)</span>
+        </div>
+      </div>
+      <div class="col b">
+        <h6><span class="dot"></span>② 条件概率分布</h6>
+        <div class="eq-wrap numbered">
+          $$ P(X=x \mid Y=c_k) = P(X^{(1)}=x^{(1)}, \cdots, X^{(n)}=x^{(n)} \mid Y=c_k) $$
+          <span class="eq-tag">(4.2)</span>
+        </div>
+      </div>
+    </div>
+
+    <p>由 (4.1) 与 (4.2) 即学习到 <strong>联合概率分布 $P(X, Y)$</strong>。</p>
+
+    <hr class="sep">
+
+    <h4>条件独立性假设 <span class="eq-num">(4.3)</span></h4>
+
+    <div class="card card-keypoint">
+      <div class="card-title">"朴素"的核心：条件独立性假设</div>
+      朴素贝叶斯对条件概率分布作了<strong>条件独立性</strong>的假设——这是一个较强的假设，朴素贝叶斯法也由此得名：
+      <div class="eq-wrap numbered">
+        $$\begin{aligned}
+        P(X=x \mid Y=c_{k}) &= P(X^{(1)}=x^{(1)}, \cdots, X^{(n)}=x^{(n)} \mid Y=c_{k}) \\
+        &= \prod_{j=1}^{n} P(X^{(j)}=x^{(j)} \mid Y=c_{k})
+        \end{aligned}$$
+        <span class="eq-tag">(4.3)</span>
+      </div>
+      <p style="margin:8px 0 0;color:var(--text-soft);font-size:14px;">
+        💡 直观含义：<em>用于分类的特征在类确定的条件下都是条件独立的。</em>
+      </p>
+    </div>
+
+    <div class="card card-note">
+      <div class="card-title">为什么朴素贝叶斯是生成模型？</div>
+      朴素贝叶斯法实际上学习到生成数据的机制（联合概率分布 $P(X,Y)$），所以属于<strong>生成模型</strong>。条件独立假设使朴素贝叶斯法变得简单，但有时会牺牲一定的<strong>分类准确率</strong>。
+    </div>
+
+    <hr class="sep">
+
+    <h4>后验概率计算（贝叶斯定理）</h4>
+
+    <p>朴素贝叶斯法分类时，对给定的输入 $x$，通过学习到的模型计算后验概率分布 $P(Y=c_k \mid X=x)$，将后验概率最大的类作为 $x$ 的类输出。后验概率根据<strong>贝叶斯定理</strong>计算：</p>
+
+    <div class="eq-wrap numbered">
+      $$P(Y=c_{k} \mid X=x) = \frac{P(X=x \mid Y=c_{k})\,P(Y=c_{k})}{\sum_{k} P(X=x \mid Y=c_{k})\,P(Y=c_{k})}$$
+      <span class="eq-tag">(4.4)</span>
+    </div>
+
+    <p>将式 (4.3) 代入 (4.4)，得到：</p>
+
+    <div class="eq-wrap numbered">
+      $$P(Y=c_{k} \mid X=x) = \frac{P(Y=c_{k}) \prod_{j} P(X^{(j)}=x^{(j)} \mid Y=c_{k})}{\sum_{k} P(Y=c_{k}) \prod_{j} P(X^{(j)}=x^{(j)} \mid Y=c_{k})}$$
+      <span class="eq-tag">(4.5)</span>
+    </div>
+
+    <p>于是<strong>朴素贝叶斯分类器</strong>可表示为：</p>
+
+    <div class="eq-wrap numbered">
+      $$y = f(x) = \arg\max_{c_{k}} \frac{P(Y=c_{k}) \prod_{j} P(X^{(j)}=x^{(j)} \mid Y=c_{k})}{\sum_{k} P(Y=c_{k}) \prod_{j} P(X^{(j)}=x^{(j)} \mid Y=c_{k})}$$
+      <span class="eq-tag">(4.6)</span>
+    </div>
+
+    <div class="card card-keypoint">
+      <div class="card-title">关键简化</div>
+      注意到式 (4.6) 中<strong>分母对所有 $c_k$ 都是相同的</strong>，故朴素贝叶斯分类器可简化为：
+      <div class="eq-wrap numbered">
+        $$y = f(x) = \arg\max_{c_{k}} P(Y=c_{k}) \prod_{j} P(X^{(j)}=x^{(j)} \mid Y=c_{k})$$
+        <span class="eq-tag">(4.7)</span>
+      </div>
+    </div>
+
+    <div class="card card-theorem">
+      <div class="card-title">贝叶斯定理回顾</div>
+      <p style="margin:6px 0;">基本形式：</p>
+      <div class="eq-wrap">$$P(Y \mid X) = \frac{P(X \mid Y)\,P(Y)}{P(X)}$$</div>
+      <p style="margin:6px 0;">分母的全概率展开：</p>
+      <div class="eq-wrap">$$P(X) = \sum_{k} P(X \mid Y_k)\,P(Y_k)$$</div>
+      <p style="margin:6px 0;">所以贝叶斯定理也可写成：</p>
+      <div class="eq-wrap">$$P(Y_k \mid X) = \frac{P(X \mid Y_k)\,P(Y_k)}{\sum_{j} P(X \mid Y_j)\,P(Y_j)}$$</div>
+    </div>
+
+    <!-- 4.1.2 -->
+    <h3 id="sec-4-1-2">4.1.2 后验概率最大化的含义</h3>
+
+    <div class="card card-keypoint">
+      <div class="card-title">核心结论</div>
+      朴素贝叶斯法将实例分到<strong>后验概率最大</strong>的类中，这等价于<strong>期望风险最小化</strong>。
+    </div>
+
+    <p>假设选择 <strong>0-1 损失函数</strong>：</p>
+    <div class="eq-wrap">
+      $$L(Y, f(X)) = \begin{cases}
+      0, & Y = f(X) \\
+      1, & Y \neq f(X)
+      \end{cases}$$
+    </div>
+
+    <p>式中 $f(X)$ 是分类决策函数。期望是对联合分布 $P(X, Y)$ 取的，此时<strong>期望风险函数</strong>为：</p>
+
+    <div class="eq-wrap numbered">
+      $$R_{\exp}(f) = \mathbb{E}[L(Y, f(X))] = \sum_{X}\sum_{Y} L(Y, f(X)) \cdot P(X, Y)$$
+      <span class="eq-tag">(4.8)</span>
+    </div>
+
+    <p>取条件期望，得到：</p>
+
+    <div class="eq-wrap numbered">
+      $$R_{\exp}(f) = \mathbb{E}_X \sum_{k=1}^{K} L(c_k, f(X)) \cdot P(c_k \mid X)$$
+      <span class="eq-tag">(4.9)</span>
+    </div>
+
+    <div class="card card-derive">
+      <div class="card-title">推导：式 (4.8) → 式 (4.9)</div>
+      <ol class="derive-steps">
+        <li>
+          利用条件概率 $P(X, Y) = P(Y \mid X) \cdot P(X)$ 展开：
+          <div class="eq-wrap">$$R_{\exp}(f) = \sum_{X}\sum_{Y} L(Y, f(X)) \cdot P(Y \mid X) \cdot P(X)$$</div>
+        </li>
+        <li>
+          调整求和顺序，先对 $Y$ 求和：
+          <div class="eq-wrap">$$R_{\exp}(f) = \sum_{X} P(X) \left[\sum_{Y} L(Y, f(X)) \cdot P(Y \mid X)\right]$$</div>
+        </li>
+        <li>
+          将 $Y$ 的取值用类别 $c_k$ 表示（$Y$ 的取值空间为 $\{c_1, c_2, \ldots, c_K\}$）：
+          <div class="eq-wrap">$$R_{\exp}(f) = \sum_{X} P(X) \left[\sum_{k=1}^{K} L(c_k, f(X)) \cdot P(c_k \mid X)\right]$$</div>
+        </li>
+        <li>
+          外层 $\sum_{X} P(X)[\cdot]$ 即对 $X$ 求期望 $\mathbb{E}_X[\cdot]$，故：
+          <div class="eq-wrap">$$R_{\exp}(f) = \mathbb{E}_X \sum_{k=1}^{K} L(c_k, f(X)) \cdot P(c_k \mid X)$$</div>
+        </li>
+      </ol>
+    </div>
+
+    <p>为了使期望风险最小化，只需对 $X=x$ <strong>逐个极小化</strong>：</p>
+    <div class="eq-wrap">
+      $$f(x) = \arg\min_{y \in \mathcal{Y}} \sum_{k=1}^{K} L(c_k, y) \cdot P(c_k \mid X=x)$$
+    </div>
+
+    <p>代入 0-1 损失，再利用 $\sum_{k=1}^{K} P(c_k \mid X=x) = 1$，得到：</p>
+
+    <div class="eq-wrap">
+      $$\begin{aligned}
+      f(x) &= \arg\min_{y \in \mathcal{Y}} \sum_{k=1}^{K} P(y \neq c_k \mid X=x) \\
+           &= \arg\min_{y \in \mathcal{Y}} \left(1 - P(y = c_k \mid X=x)\right) \\
+           &= \arg\max_{y \in \mathcal{Y}} P(y = c_k \mid X=x)
+      \end{aligned}$$
+    </div>
+
+    <p>这样一来，<strong>期望风险最小化准则</strong>就推出了<strong>后验概率最大化准则</strong>：</p>
+
+    <div class="eq-wrap numbered">
+      $$f(x) = \arg\max_{c_{k}} P(c_{k} \mid X=x)$$
+      <span class="eq-tag">(4.10)</span>
+    </div>
+
+    <div class="card card-note">
+      <div class="card-title">小结</div>
+      朴素贝叶斯法所采用的 <strong>后验概率最大化准则</strong> ⟺ <strong>期望风险最小化</strong>（在 0-1 损失下）。
+    </div>
+
+    <!-- 4.2 -->
+    <h2 id="sec-4-2"><span class="anchor-num">4.2</span>朴素贝叶斯法的参数估计</h2>
+
+    <h3 id="sec-4-2-1">4.2.1 极大似然估计</h3>
+
+    <div class="section-intro">
+      在朴素贝叶斯法中，<strong>学习</strong>意味着估计 $P(Y=c_k)$ 和 $P(X^{(j)}=x^{(j)} \mid Y=c_k)$，可以应用<strong>极大似然估计法</strong>。
+    </div>
+
+    <h4>① 先验概率 $P(Y=c_k)$ 的极大似然估计</h4>
+    <div class="eq-wrap numbered">
+      $$P(Y=c_k) = \frac{\sum_{i=1}^{N} I(y_i = c_k)}{N}$$
+      <span class="eq-tag">(4.11)</span>
+    </div>
+    <ul>
+      <li>$k = 1, 2, \dots, K$</li>
+      <li>$I(\cdot)$ 是<strong>指示函数</strong>：当 $y_i = c_k$ 时为 1，否则为 0</li>
+    </ul>
+
+    <h4>② 条件概率 $P(X^{(j)} = a_{jl} \mid Y=c_k)$ 的极大似然估计</h4>
+    <p>设第 $j$ 个特征 $x^{(j)}$ 可能取值的集合为 $\{a_{j1}, a_{j2}, \dots, a_{jS_j}\}$，则：</p>
+    <div class="eq-wrap numbered">
+      $$P(X^{(j)}=a_{jl} \mid Y=c_{k}) = \frac{\sum_{i=1}^{N} I(x_{i}^{(j)}=a_{jl},\; y_{i}=c_{k})}{\sum_{i=1}^{N} I(y_{i}=c_{k})}$$
+      <span class="eq-tag">(4.12)</span>
+    </div>
+    <ul>
+      <li>$j = 1, 2, \dots, n;\quad l = 1, 2, \dots, S_j;\quad k = 1, 2, \dots, K$</li>
+      <li>$x_i^{(j)}$ 是第 $i$ 个样本的第 $j$ 个特征；$a_{jl}$ 是第 $j$ 个特征的第 $l$ 个取值</li>
+      <li>$I$ 为指示函数</li>
+    </ul>
+
+    <!-- 4.2.2 -->
+    <h3 id="sec-4-2-2">4.2.2 学习与分类算法</h3>
+
+    <div class="algo-box">
+      <div class="algo-header">朴素贝叶斯算法 (Naïve Bayes Algorithm)</div>
+      <div class="algo-body">
+
+        <div class="algo-section-title">📥 输入</div>
+        训练数据 $T = \{(x_1, y_1), (x_2, y_2), \ldots, (x_N, y_N)\}$，其中
+        <ul>
+          <li>$x_i = (x_i^{(1)}, x_i^{(2)}, \ldots, x_i^{(n)})^{\mathrm{T}}$</li>
+          <li>$y_i \in \{c_1, c_2, \ldots, c_K\}$，$i = 1, 2, \ldots, N$</li>
+          <li>$x_i^{(j)}$ 是第 $i$ 个样本的第 $j$ 个特征，$y_i$ 是第 $i$ 个样本的类别</li>
+        </ul>
+
+        <div class="algo-section-title">📤 输出</div>
+        实例 $x$ 的分类。
+
+        <div class="algo-section-title">⚡ 算法步骤</div>
+        <ol>
+          <li>
+            利用 <strong>式 (4.11)</strong> 和 <strong>式 (4.12)</strong> 计算先验概率与条件概率：
+            <div class="eq-wrap">
+              $$P(Y=c_k),\quad P(X^{(j)}=a_{jl} \mid Y=c_k)$$
+            </div>
+          </li>
+          <li>
+            对于给定实例 $x = (x^{(1)}, x^{(2)}, \ldots, x^{(n)})^{\mathrm{T}}$，计算：
+            <div class="eq-wrap">
+              $$P(Y=c_k) \prod_{j=1}^{n} P(X^{(j)}=x^{(j)} \mid Y=c_k),\quad k=1,2,\ldots,K$$
+            </div>
+          </li>
+          <li>
+            确定实例 $x$ 的分类：
+            <div class="eq-wrap">
+              $$y = \arg\max_{c_k} P(Y=c_k) \prod_{j=1}^{n} P(X^{(j)}=x^{(j)} \mid Y=c_k)$$
+            </div>
+          </li>
+        </ol>
+      </div>
+    </div>
+
+    <!-- 4.2.3 -->
+    <h3 id="sec-4-2-3">4.2.3 贝叶斯估计</h3>
+
+    <div class="card card-warning">
+      <div class="card-title">极大似然估计的问题</div>
+      用极大似然估计可能会出现所要估计的概率值为 <strong>$0$</strong> 的情况——这时连乘后整体后验概率也为 $0$，会影响后验概率的计算结果，<strong>使分类产生偏差</strong>。
+      <p style="margin:8px 0 0;color:var(--text-soft);font-size:14px;">
+        💊 <em>解决方法：采用贝叶斯估计（在频数上加一个平滑项 $\lambda$）。</em>
+      </p>
+    </div>
+
+    <div class="grid-2">
+      <div class="col">
+        <h6><span class="dot"></span>先验概率的贝叶斯估计</h6>
+        <div class="eq-wrap numbered">
+          $$P_{\lambda}(Y=c_{k}) = \frac{\sum_{i=1}^{N} I(y_{i}=c_{k}) + \lambda}{N + K\lambda}$$
+          <span class="eq-tag">(4.13)</span>
+        </div>
+        <p style="margin:6px 0 0;color:var(--text-soft);font-size:13.5px;">
+          分子加 $\lambda$，分母加 $K\lambda$（$K$ 为类别数）。
+        </p>
+      </div>
+      <div class="col b">
+        <h6><span class="dot"></span>条件概率的贝叶斯估计</h6>
+        <div class="eq-wrap numbered">
+          $$P_{\lambda}(X^{(j)}=a_{jl} \mid Y=c_{k}) = \frac{\sum_{i=1}^{N} I(x_{i}^{(j)}=a_{jl},\; y_{i}=c_{k}) + \lambda}{\sum_{i=1}^{N} I(y_{i}=c_{k}) + S_{j}\lambda}$$
+          <span class="eq-tag">(4.14)</span>
+        </div>
+        <p style="margin:6px 0 0;color:var(--text-soft);font-size:13.5px;">
+          分子加 $\lambda$，分母加 $S_j \lambda$（$S_j$ 为第 $j$ 个特征可能取值数）。
+        </p>
+      </div>
+    </div>
+
+    <div class="card card-keypoint">
+      <div class="card-title">平滑参数 $\lambda \geq 0$ 的取值含义</div>
+      $\lambda$ 等价于在随机变量各个取值的频数上赋予一个正数：
+      <ul style="margin:6px 0 0;">
+        <li>🔹 $\lambda = 0$：就是<strong>极大似然估计</strong></li>
+        <li>🔸 $\lambda = 1$：常常取此值，称为 <strong>拉普拉斯平滑（Laplace smoothing）</strong></li>
+        <li>📌 $0 < \lambda < 1$：称为 Lidstone 平滑（不在书中范围，仅作扩展了解）</li>
+      </ul>
+    </div>
+
+    <!-- 总结 -->
+    <h2 id="summary"><span class="anchor-num">★</span>本章要点回顾</h2>
+    <div class="grid-2">
+      <div class="col">
+        <h6><span class="dot"></span>核心概念</h6>
+        <ul>
+          <li><strong>生成模型</strong>：先学联合分布 $P(X, Y)$，再用贝叶斯定理求后验</li>
+          <li><strong>条件独立性假设</strong>：(4.3) 是朴素贝叶斯"朴素"之处</li>
+          <li><strong>后验概率最大化</strong> ⟺ <strong>期望风险最小化</strong>（0-1 损失）</li>
+          <li>分类器的简化形式：<strong>式 (4.7)</strong>（去除分母）</li>
+        </ul>
+      </div>
+      <div class="col b">
+        <h6><span class="dot"></span>参数估计</h6>
+        <ul>
+          <li><strong>极大似然估计</strong>：式 (4.11)、(4.12)</li>
+          <li><strong>问题</strong>：可能出现概率为 0，影响分类</li>
+          <li><strong>贝叶斯估计</strong>：式 (4.13)、(4.14) 加平滑参数 $\lambda$</li>
+          <li><strong>拉普拉斯平滑</strong>：$\lambda = 1$ 最常用</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="card card-note">
+      <div class="card-title">朴素贝叶斯分类器完整公式（拉普拉斯平滑版）</div>
+      <div class="eq-wrap">
+        $$y = \arg\max_{c_{k}} P_{\lambda}(Y=c_{k}) \prod_{j=1}^{n} P_{\lambda}(X^{(j)}=x^{(j)} \mid Y=c_{k})$$
+      </div>
+      其中 $P_\lambda$ 由式 (4.13)、(4.14) 给出，$\lambda = 1$ 时即拉普拉斯平滑。
+    </div>
+
+  </main>
+</div>
+
+<button id="expandToc" title="展开目录" aria-label="展开目录">»</button>
+<button id="toTop" title="回到顶部">↑</button>
+
+<script>
+  const progress = document.getElementById('progress');
+  function onScroll() {
+    const h = document.documentElement;
+    const scrolled = h.scrollTop;
+    const total = h.scrollHeight - h.clientHeight;
+    progress.style.width = (scrolled / total * 100) + '%';
+
+    const toTop = document.getElementById('toTop');
+    if (scrolled > 400) toTop.classList.add('show');
+    else toTop.classList.remove('show');
+
+    const headings = document.querySelectorAll('main.content h2[id], main.content h3[id], main.content h4[id]');
+    let current = null;
+    headings.forEach(h => {
+      if (h.getBoundingClientRect().top <= 80) current = h;
+    });
+    document.querySelectorAll('aside.toc a').forEach(a => a.classList.remove('active'));
+    if (current) {
+      const link = document.querySelector('aside.toc a[href="#' + current.id + '"]');
+      if (link) link.classList.add('active');
+    }
+  }
+  document.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+
+  document.getElementById('toTop').addEventListener('click', () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+
+  // 侧边目录折叠/展开
+  const layout = document.querySelector('.layout');
+  const collapseBtn = document.getElementById('collapseToc');
+  const expandBtn = document.getElementById('expandToc');
+  const TOC_KEY = 'ch04_toc_collapsed';
+
+  function setTocCollapsed(collapsed) {
+    if (collapsed) {
+      layout.classList.add('toc-collapsed');
+      expandBtn.classList.add('show');
+    } else {
+      layout.classList.remove('toc-collapsed');
+      expandBtn.classList.remove('show');
+    }
+    try { localStorage.setItem(TOC_KEY, collapsed ? '1' : '0'); } catch (e) {}
+  }
+
+  collapseBtn.addEventListener('click', () => setTocCollapsed(true));
+  expandBtn.addEventListener('click', () => setTocCollapsed(false));
+
+  try {
+    if (localStorage.getItem(TOC_KEY) === '1') setTocCollapsed(true);
+  } catch (e) {}
+
+  document.addEventListener('keydown', (e) => {
+    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+    if (e.key === '[' || e.key === ']') {
+      setTocCollapsed(!layout.classList.contains('toc-collapsed'));
+    }
+  });
+</script>
+
+</body>
+</html>
