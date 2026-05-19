@@ -175,9 +175,8 @@
 
 
 
-### 深度学习
+### 深度学习（理论）
 
-**深度学习理论：**
 - [ch02_实践方法论](./KB03-DeepLearning/LeeDLNotes/ch02_实践方法论.md)
 - [ch03_深度学习基础](./KB03-DeepLearning/LeeDLNotes/ch03_深度学习基础.md)
 - [ch04_卷积神经网络](./KB03-DeepLearning/LeeDLNotes/ch04_卷积神经网络.md)
@@ -189,11 +188,17 @@
 
 
 
-**两大应用分支：CV & NLP**
+### CV & NLP
+
+**CV**：
 
 - [CV01-CNN相关模型总结](./KB03-DeepLearning/CNN01-相关模型总结.md)
 - [CV02-计算机视觉基础](./KB03-DeepLearning/CNN02-计算机视觉基础.md)  # TODO
 - [CV03-现代视觉模型与Kaggle实战]()  # TODO
+
+
+**NLP**:
+
 - [NLP01-RNN相关模型总结](./KB03-DeepLearning/RNN01-相关模型总结.md)
 - [NLP02-自然语言基础](./KB03-DeepLearning/RNN02-自然语言基础.md)  # TODO
 - [NLP03-BERT与预训练模型]()  # TODO
