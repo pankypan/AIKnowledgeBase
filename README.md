@@ -146,7 +146,8 @@
 - [CNN01-相关模型总结](./KB03-DeepLearning/CNN01-相关模型总结.md)
 - [CNN02-计算机视觉基础](./KB03-DeepLearning/CNN02-计算机视觉基础.md)  # TODO
 - [RNN01-相关模型总结](./KB03-DeepLearning/RNN01-相关模型总结.md)
-- [RNN02-自然语言基础](./KB03-DeepLearning/RNN02-自然语言基础.md)  # TODO
+- [RNN02-自然语言基础](./KB03-DeepLearning/RNN02-自然语言基础.md)
+- [NLP01-BERT与预训练模型](./KB03-DeepLearning/NLP01-BERT与预训练模型.md)
 
 
 
