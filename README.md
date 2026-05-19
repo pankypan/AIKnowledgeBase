@@ -189,12 +189,14 @@
 
 
 
-**各类小结：**
+**两大应用分支：CV & NLP**
 
-- [CNN01-相关模型总结](./KB03-DeepLearning/CNN01-相关模型总结.md)
-- [CNN02-计算机视觉基础](./KB03-DeepLearning/CNN02-计算机视觉基础.md)  # TODO
-- [RNN01-相关模型总结](./KB03-DeepLearning/RNN01-相关模型总结.md)
-- [RNN02-自然语言基础](./KB03-DeepLearning/RNN02-自然语言基础.md)  # TODO
+- [CV01-CNN相关模型总结](./KB03-DeepLearning/CNN01-相关模型总结.md)
+- [CV02-计算机视觉基础](./KB03-DeepLearning/CNN02-计算机视觉基础.md)  # TODO
+- [CV03-现代视觉模型与Kaggle实战]()  # TODO
+- [NLP01-RNN相关模型总结](./KB03-DeepLearning/RNN01-相关模型总结.md)
+- [NLP02-自然语言基础](./KB03-DeepLearning/RNN02-自然语言基础.md)  # TODO
+- [NLP03-BERT与预训练模型]()  # TODO
 
 
 
