@@ -145,3 +145,8 @@ dist/
 build/
 *.o
 *.a
+
+
+KB03-DeepLearning/chapter_computer-vision
+KB03-DeepLearning/chapter_natural-language-processing-applications
+KB03-DeepLearning/chapter_natural-language-processing-pretraining
