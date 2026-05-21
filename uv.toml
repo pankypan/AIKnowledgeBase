@@ -1,0 +1,10 @@
+# uv 全局配置 - 适用于本仓库内各子项目
+# 详见：https://docs.astral.sh/uv/reference/settings/
+
+# 优先使用系统已安装的 Python，而非自动下载
+python-preference = "system"
+
+# 使用华为云镜像源加速包下载（实测当前最快）
+[[index]]
+url = "https://repo.huaweicloud.com/repository/pypi/simple"
+default = true
