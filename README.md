@@ -192,21 +192,17 @@
 
 **CV**：
 
-- [CV01-CNN相关模型总结](./KB03-DeepLearning/CNN01-相关模型总结.md)
-- [CV02-计算机视觉基础](./KB03-DeepLearning/CNN02-计算机视觉基础.md)  # TODO
-- [CV03-现代视觉模型与Kaggle实战]()  # TODO
+- [CV01-CNN相关模型总结](./KB03-DeepLearning/CV01-CNN相关模型总结.md)
+- [CV02-计算机视觉基础](./KB03-DeepLearning/CV02-计算机视觉基础.md)
+- [CV03-现代视觉模型与Kaggle实战](./KB03-DeepLearning/CV03-现代视觉模型与Kaggle实战.md)
 
 
 **NLP**:
 
-- [CNN01-相关模型总结](./KB03-DeepLearning/CNN01-相关模型总结.md)
-- [CNN02-计算机视觉基础](./KB03-DeepLearning/CNN02-计算机视觉基础.md)  # TODO
-- [RNN01-相关模型总结](./KB03-DeepLearning/RNN01-相关模型总结.md)
-- [RNN02-自然语言基础](./KB03-DeepLearning/RNN02-自然语言基础.md)
-- [NLP01-BERT与预训练模型](./KB03-DeepLearning/NLP01-BERT与预训练模型.md)
-- [NLP01-RNN相关模型总结](./KB03-DeepLearning/RNN01-相关模型总结.md)
-- [NLP02-自然语言基础](./KB03-DeepLearning/RNN02-自然语言基础.md)  # TODO
-- [NLP03-BERT与预训练模型]()  # TODO
+- [NLP01-RNN相关模型总结](./KB03-DeepLearning/NLP01-RNN相关模型总结.md)
+- [NLP02-自然语言基础](./KB03-DeepLearning/NLP02-自然语言基础.md)
+- [NLP03-BERT与预训练模型](./KB03-DeepLearning/NLP03-BERT与预训练模型.md)
+- [NLP04-NLP应用：情感分析与自然语言推断](./KB03-DeepLearning/NLP04-NLP应用：情感分析与自然语言推断.md)
 
 
 
