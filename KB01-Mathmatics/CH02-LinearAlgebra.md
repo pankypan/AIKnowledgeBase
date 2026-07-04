@@ -52,16 +52,24 @@ $$
 a_{ij}\in\mathbb{R} \tag{2.11}
 $$
 
-按照惯例，形状为 $(1, n)$ 的矩阵成为行向量，形状为 $(m, 1)$ 的矩阵称为列向量。
+按照惯例，
+- 形状为 $(1, n)$ 的矩阵成为行向量
+- 形状为 $(m, 1)$ 的矩阵称为列向量
 
 通过将矩阵的所有n列叠加成一个长向量，一个 $\boldsymbol{A}\in\R^{m\times n}$ 可以等价地表示为一个 $a\in\R^{mn}$，如图2.4所示。
 
-![图2.4](https://datawhalechina.github.io/math-for-ai/ch2/attachments/2-4.png)
+<div align="center">
+    <img src="https://datawhalechina.github.io/math-for-ai/ch2/attachments/2-4.png" alt="图2.4" />
+    <center>图2.4: 矩阵$\boldsymbol{A}\in\R^{m\times n}$可以等价地表示为一个$a\in\R^{mn}$</center>
+</div>
 
 
 
 
-### 2.2.1 矩阵的加法与乘法
+### 2.2.1 矩阵的运算与性质
+
+#### 加法、乘法、Hadamard 积
+
 **矩阵加法**：两个矩阵 $\boldsymbol{A}\in\R^{m\times n}$， $\boldsymbol{B}\in\R^{m\times n}$ 的和被定义为两个矩阵按对应元素的相加得到的新矩阵，即：
 $$
 \boldsymbol{A}+\boldsymbol{B}=
@@ -101,6 +109,7 @@ $$
 $$
 
 
+#### 单位矩阵和矩阵运算性质
 
 **单位矩阵**：在$\R^{n\times n}$中，定义**单位矩阵**
 
@@ -120,21 +129,26 @@ $$
 
 
 **矩阵运算性质：**
-- **结合律**：
+
+- **结合律**：$\forall \boldsymbol{A}\in\R^{m\times n}, \boldsymbol{B}\in\R^{n\times p}, \boldsymbol{C}\in\R^{p\times q},$
+
 $$
-\forall \boldsymbol{A}\in\R^{m\times n}, \boldsymbol{B}\in\R^{n\times p}, \boldsymbol{C}\in\R^{p\times q}, (\boldsymbol{A}\boldsymbol{B})\boldsymbol{C}=\boldsymbol{A}(\boldsymbol{B}\boldsymbol{C})\tag{2.18}
+(\boldsymbol{A}\boldsymbol{B})\boldsymbol{C}=\boldsymbol{A}(\boldsymbol{B}\boldsymbol{C})\tag{2.18}
 $$
-- **分配律**：
+
+- **分配律**：$\forall \boldsymbol{A}, \boldsymbol{B} \in \mathbb{R}^{m \times n}, \boldsymbol{C}, \boldsymbol{D} \in \mathbb{R}^{n \times p},$
+
 $$
-\begin{align*}
-\forall \boldsymbol{A},\boldsymbol{B}\in\R^{m\times n}, \boldsymbol{C},\boldsymbol{D}\in\R^{n\times p}, 
-(\boldsymbol{A}+\boldsymbol{B})\boldsymbol{C}&=\boldsymbol{A}\boldsymbol{C}+\boldsymbol{B}\boldsymbol{C}, \tag{2.19a}\\
-\boldsymbol{A}(\boldsymbol{C}+\boldsymbol{D})&=\boldsymbol{A}\boldsymbol{C}+\boldsymbol{A}\boldsymbol{D} \tag{2.19b}
-\end{align*}
+\begin{array}{l}
+(\boldsymbol{A}+\boldsymbol{B}) \boldsymbol{C}=\boldsymbol{A} \boldsymbol{C}+\boldsymbol{B} \boldsymbol{C} \\
+\boldsymbol{A}(\boldsymbol{C}+\boldsymbol{D})=\boldsymbol{A} \boldsymbol{C}+\boldsymbol{A} \boldsymbol{D}
+\end{array} \tag{2.19}
 $$
-- **与单位矩阵相乘**：
+
+- **与单位矩阵相乘**：$\forall \boldsymbol{A}\in\R^{m\times n},$
+
 $$
-\forall \boldsymbol{A}\in\R^{m\times n}, \boldsymbol{I}_m\boldsymbol{A}=\boldsymbol{A}\boldsymbol{I}_n=\boldsymbol{A} \tag{2.20}
+\boldsymbol{I}_m\boldsymbol{A}=\boldsymbol{A}\boldsymbol{I}_n=\boldsymbol{A} \tag{2.20}
 $$
 
 
@@ -149,6 +163,7 @@ $$
 
 总的来说，$\boldsymbol{A}^{\top}$可以通过把$\boldsymbol{A}$的行作为$\boldsymbol{A}^{\top}$的对应列得到
 
+**定义2.5（对称矩阵）**：一个矩阵 $\boldsymbol{A}\in \R^{n\times n}$ 若满足 $\boldsymbol{A}=\boldsymbol{A}^{\top}$，我们称其为 **对称矩阵** 。
 
 
 **有关逆与转置的重要性质：**
@@ -165,7 +180,7 @@ $$
 $$
 
 
-**定义2.5（对称矩阵）**：一个矩阵 $\boldsymbol{A}\in \R^{n\times n}$ 若满足 $\boldsymbol{A}=\boldsymbol{A}^{\top}$，我们称其为 **对称矩阵** 。
+
 
 
 
