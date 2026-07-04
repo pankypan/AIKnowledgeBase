@@ -284,21 +284,60 @@ $$
 
 ### 2.4 多个矩阵乘法（变换的复合）
 
-依次应用两个 linear transformation（如先旋转再剪切），整体效果仍是一个 linear transformation，称为 **composition**。
+> **变换的复合（Composition）**：依次应用两个 linear transformation（如先旋转再剪切），整体效果仍是同一个 linear transformation，对应的矩阵称为 **composition matrix**。
 
-**求 composition 矩阵的方法：** 跟踪基向量经两次变换后的最终落点。
+**复合变换的矩阵表示：**
 
-
-$M_2 \cdot M_1$ 表示**先应用 $M_1$，再应用 $M_2$**（从右往左读）。
+沿用 $\vec{y} = A\vec{x}$ 的形式，两个变换依次作用可写成：
 
 $$
-M_2 \cdot M_1 \cdot \vec{v} =  
+\vec{y} = M_2 M_1 \vec{x}
+$$
+
+$M_2 M_1$ 表示**先应用 $M_1$，再应用 $M_2$**（从右往左读）。展开来看：
+
+$$
+\vec{x}' = M_1 \vec{x}, \qquad \vec{y} = M_2 \vec{x}' = M_2 (M_1 \vec{x}) = (M_2 M_1)\vec{x}
+$$
+
+其中复合矩阵：
+
+$$
+M_2 \cdot M_1 = 
 \begin{bmatrix} a & b \\ c & d \end{bmatrix}
 \begin{bmatrix} e & f \\ g & h \end{bmatrix}
-\begin{bmatrix} x \\ y \end{bmatrix}
 =
 \begin{bmatrix} ae+bg & af+bh \\ ce+dg & cf+dh \end{bmatrix}
 $$
+
+**为什么列代表“最终落点”？**
+
+对任意矩阵 $A$，第一列就是 $A\hat{\imath}$，第二列就是 $A\hat{\jmath}$：
+
+$$
+A\hat{\imath} = A\begin{bmatrix} 1 \\ 0 \end{bmatrix} = \text{第一列}, \quad A\hat{\jmath} = A\begin{bmatrix} 0 \\ 1 \end{bmatrix} = \text{第二列}
+$$
+
+因此：
+
+$$
+\text{$M_2 M_1$ 的第一列} = (M_2 M_1)\hat{\imath} = M_2(M_1\hat{\imath})
+$$
+
+- $M_1\hat{\imath}$ = $\hat{\imath}$ 先经 $M_1$ 后的落点
+- $M_2(M_1\hat{\imath})$ = 该落点再经 $M_2$ 后的最终位置
+
+
+
+**关键洞察**：**矩阵乘法 $M_2 M_1$ 的每一列，都是 $M_2$ 对 $M_1$ 对应列的变换结果。** 因为 $M_1$ 的列记录了第一次变换后基向量的落点，而线性变换保持线性组合，所以第二次变换 $M_2$ 只需分别作用在这些落点上：
+
+$$
+M_2 M_1 = M_2 \begin{bmatrix} | & | \\ \hat{\imath}' & \hat{\jmath}' \\ | & | \end{bmatrix} = \begin{bmatrix} | & | \\ M_2\hat{\imath}' & M_2\hat{\jmath}' \\ | & | \end{bmatrix}
+$$
+
+其中 $\hat{\imath}' = M_1\hat{\imath}$，$\hat{\jmath}' = M_1\hat{\jmath}$。
+
+
 
 | 性质 | 结论 | 直觉 |
 |------|------|------|
